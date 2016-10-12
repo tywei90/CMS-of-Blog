@@ -1,10 +1,8 @@
 <template>
     <navi-header></navi-header>
     <aside class="console">
-        <div class="head">
-            <div class="circle">
-                <img src="../img/me.jpg" alt="me">
-            </div>
+        <div class="circle">
+            <img src="../img/me.jpg" alt="me">
         </div>
         <menu class="navigation">
             <ul>
@@ -20,14 +18,10 @@
                     <i class="fa fa-list-ul fa-fw"></i>
                     <span>链接</span>
                 </li>
-                <!--<li @click="$router.go('/console/theme')">-->
-                <!--<i class="fa fa-star fa-fw"></i>-->
-                <!--<span>主题</span>-->
-                <!--</li>-->
-                <!--<li @click="$router.go('/console/account')">-->
-                <!--<i class="fa fa-user fa-fw"></i>-->
-                <!--<span>账户</span>-->
-                <!--</li>-->
+                <li @click="$router.go('/console/account')">
+                    <i class="fa fa-user fa-fw"></i>
+                    <span>账户</span>
+                </li>
             </ul>
         </menu>
     </aside>
@@ -51,7 +45,7 @@ import NaviHeader               from './NaviHeader.vue'
             NaviHeader,
         },
         ready(){
-            this.bgToggle('Background')
+            this.bgToggle('NightSky')
         },
         vuex: {
             getters: {
@@ -65,5 +59,5 @@ import NaviHeader               from './NaviHeader.vue'
     }
 </script>
 <style lang="sass">
-    @import "../SCSS/Console.scss";
+    @import "../style/components/Console.scss";
 </style>

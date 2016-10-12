@@ -1,8 +1,6 @@
-@import "variables";
-@import "mixins";
+@import "../mixins";
 
 footer{
-
   position: absolute;
   bottom: 0;
   font-family: $fontSourceSansPro;

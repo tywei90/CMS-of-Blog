@@ -52,7 +52,6 @@
                     }, (response)=> {
                         console.log(response)
                     })
-
         },
         ready(){
             this.bgToggle('MyCanvas')
@@ -92,5 +91,5 @@
     }
 </script>
 <style lang="sass">
-    @import "../SCSS/Archive.scss";
+    @import "../style/components/Archive.scss";
 </style>

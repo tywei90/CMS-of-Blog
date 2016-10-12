@@ -8,10 +8,10 @@
             </textarea>
             <button class="toggle"
                     @click="editToggle">
-                <i class="fa fa-chevron-right fa-fw"
+                <i class="fa fa-chevron-left fa-fw"
                    v-show="view==='edit'">
                 </i>
-                <i class="fa fa-chevron-left fa-fw"
+                <i class="fa fa-chevron-right fa-fw"
                    v-show="view==='inspect'">
                 </i>
             </button>
@@ -29,7 +29,8 @@
     </section>
 </template>
 <script>
-    import marked       from '../js/marked.min.js'
+    import marked       from '../js/marked.min'
+    import hljs         from '../js/highlight.min'
     import {userName}   from '../vuex/getters'
     import {pop}        from '../vuex/actions'
     export default{
@@ -44,6 +45,12 @@
         },
         filters: {
             marked
+        },
+        watch:{
+            input:function () {
+                hljs.initHighlighting()
+                hljs.initHighlighting.called = false
+            }
         },
         created(){
             if (this.$route.query.id) {
@@ -130,6 +137,10 @@
                 }
             }
         },
+        ready(){
+            hljs.initHighlighting()
+            hljs.initHighlighting.called = false
+        },
         vuex: {
             getters: {
                 userName
@@ -141,5 +152,5 @@
     }
 </script>
 <style lang="sass">
-    @import "../SCSS/Editor.scss";
+    @import "../style/components/Editor.scss";
 </style>
