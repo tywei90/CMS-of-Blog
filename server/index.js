@@ -3,7 +3,7 @@ var router = express.Router();
 var db = require('./db')
 
 router.get('/', function (req, res, next) {
-    res.render('index', {});
+    res.render('index', {title: 'CMS-blog'});
 })
 
 router.get('/article', function (req, res, next) {
