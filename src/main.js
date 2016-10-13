@@ -85,7 +85,7 @@ let App = Vue.extend({
             font-size:2em
             `
         ].join(';')
-        console.log('%c呜呜你要对我的代码做什么...', style);
+        // console.log('%c呜呜你要对我的代码做什么...', style);
     }
 })
 
