@@ -18,6 +18,32 @@ router.get('/article', function(req, res, next) {
 })
 
 router.get('/articleList', function(req, res, next) {
+    // // 查询符合条件的文档并返回根据键分组的结果
+    // db.Article.distinct('date', {title: "Vue Components"}, function(err, doc){
+    //     if(err){
+    //         return console.log(err)
+    //     }else{
+    //         console.log(doc);
+    //     }
+    // })
+    // // 直接指定js代码查询，返回结果为true的文档数组
+    // db.Article.find({$where: function(){
+    //     return /^Vue/.test(this.title)
+    // }}, 'date', function(err,doc){
+    //     if(err){
+    //         return console.log(err)
+    //     }else{
+    //         console.log(doc);
+    //     }
+    // })
+    // // 返回符合条件的文档数
+    // db.Article.count({title: "Vue Components"}, function(err,doc){
+    //     if(err){
+    //         return console.log(err)
+    //     }else{
+    //         console.log(doc);
+    //     }
+    // })
     db.Article.find(null, 'title date', function(err, doc) {
         if (err) {
             return console.log(err)
@@ -55,14 +81,28 @@ router.post('/save', function(req, res, next) {
             content: req.body.input
         }
 
-        db.Article.findByIdAndUpdate(req.body.id, obj, function() {})
+        db.Article.findByIdAndUpdate(req.body.id, obj, function(err) {
+            if(err){
+                return console.log(err);
+            }
+        })
     } else {
-        var newArticle = new db.Article({
+        // // 增加记录，基于entity的操作
+        // var newArticle = new db.Article({
+        //     title: req.body.title,
+        //     date: req.body.date,
+        //     content: req.body.input
+        // })
+        // newArticle.save(function(err) {
+        //     if (err) return console.log(err)
+        // })
+        // 增加记录，基于entity的操作
+        var newArticleJSON = {
             title: req.body.title,
             date: req.body.date,
             content: req.body.input
-        })
-        newArticle.save(function(err) {
+        }
+        db.Article.create(newArticleJSON, function(err) {
             if (err) return console.log(err)
         })
     }
@@ -119,15 +159,18 @@ router.post('/savePw', function(req, res, next) {
             }
             res.send(resBody)
         } else {
-            db.User.findOneAndUpdate({ name: name }, { password: newPassword }, 'password', function(err) {
-                console.log(err)
+            db.User.update({ name: name }, { password: newPassword }, function(err) {
+                if(err){
+                    return console.log(err)
+                }else{
+                    resBody = {
+                        retcode: 200,
+                        retdesc: '修改成功',
+                        data: {}
+                    }
+                    res.send(resBody)
+                }
             })
-            resBody = {
-                retcode: 200,
-                retdesc: '修改成功',
-                data: {}
-            }
-            res.send(resBody)
         }
     })
 })
