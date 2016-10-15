@@ -69,7 +69,7 @@
                     pattern: '/^[a-zA-Z0-9\u4e00-\u9fa5_]+$/',
                 },
                 passwordRule: {
-                    minlength: 1,
+                    minlength: 4,
                     maxlength: 16,
                 }
 

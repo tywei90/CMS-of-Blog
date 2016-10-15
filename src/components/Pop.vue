@@ -3,9 +3,9 @@
         <div class="content">
             <p>{{getPopPara.content}}</p>
             <div class="button">
-                <button class="ok" @click="ok">确定</button>
+                <button class="ok" @click="ok">{{getPopPara.btn1}}</button>
                 <button class="cancel" @click="cancel"
-                        v-if="getPopPara.cb2">取消
+                        v-if="getPopPara.cb2">{{getPopPara.btn2}}
                 </button>
             </div>
         </div>
