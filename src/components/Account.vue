@@ -66,7 +66,6 @@
                     return
                 }
                 this.$validate(true, ()=> {
-                    console.log(this.$loginValidator);
                     if (this.$loginValidator.valid) {
                         if (this.pw === this.rpw) {
                             this.$http.post('/savePw', {
