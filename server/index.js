@@ -96,7 +96,7 @@ router.post('/save', function(req, res, next) {
         // newArticle.save(function(err) {
         //     if (err) return console.log(err)
         // })
-        // 增加记录，基于entity的操作
+        // 增加记录，基于model的操作
         var newArticleJSON = {
             title: req.body.title,
             date: req.body.date,
