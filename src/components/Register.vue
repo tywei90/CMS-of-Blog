@@ -1,0 +1,290 @@
+<template>
+    <section class="login">
+        <validator name="loginValidator">
+            <div class="form" @keyup.enter="registerRequest">
+                <div class="part">
+                    <i class="icon iconfont icon-fire"></i>
+                </div>
+                <div class="part f-cb">
+                    <div class="f-fr">
+                        <input id="userName"
+                            type="text"
+                            name="userName"
+                            placeholder="请输入您的账号"
+                            v-model="userName"
+                            initial="off"
+                            detect-change="off"
+                            detect-blur="on"
+                            @valid="onUsernameValid"
+                            v-validate:user-name="userRule">
+                        <label for="userName" v-if="$loginValidator.userName.pattern">
+                            <i class="icon iconfont icon-cuowu"></i>
+                            <span>账号不能包含字母数字和下划线以外的字符</span>
+                        </label>
+                        <label for="userName" v-if="hasSameUsername">
+                            <i class="icon iconfont icon-weixian"></i>
+                            <span>已存在同名账号，请更换其他账号</span>
+                        </label>
+                    </div>
+                    <span class="f-fr">用户名：</span>
+                </div>
+                <div class="part f-cb">
+                    <div class="f-fr">
+                        <input id="phoneNum"
+                            type="text"
+                            name="phoneNum"
+                            placeholder="请输入您的手机号码"
+                            v-model="phoneNum"
+                            initial="off"
+                            detect-change="off"
+                            detect-blur="on"
+                            v-validate:phone-num="['phoneRule']">
+                        <label for="phoneNum" v-if="$loginValidator.phoneNum.phoneRule">
+                            <i class="icon iconfont icon-cuowu"></i>
+                            <span>手机号码格式不正确</span>
+                        </label>
+                    </div>
+                    <span class="f-fr">手机号：</span>
+                </div>
+                <div class="part f-cb">
+                    <div class="password-level f-cb" :class="levelPointer1" v-if="passwordLevel1 > 0">
+                        <span class="f-fl"></span>
+                        <span class="f-fl"></span>
+                        <span class="f-fl"></span>
+                    </div>
+                    <div class="f-fr">
+                        <input id="password1"
+                            type="password"
+                            placeholder="密码长度4-16个字符"
+                            v-model="password1"
+                            @input="showPasswordLevel(1, password1)">
+                        <label for="password1" v-if="password1!==''">
+                            <i v-if="passwordLevel1 === 0" class="icon iconfont icon-cuowu"></i>
+                            <span v-if="passwordLevel1 === 0">{{passwordTip1}}</span>
+                            <span v-else class="level-tip">{{passwordTip1}}</span>
+                        </label>
+                    </div>
+                    <span class="f-fr">设置密码：</span>
+                </div>
+                <div class="part f-cb">
+                    <div class="f-fr">
+                        <input id="password2"
+                            type="password"
+                            placeholder="密码长度4-16个字符"
+                            v-model="password2"
+                            @blur="validatePassword2">
+                        <label for="password2" v-if="password2!=='' && passwordTip2!==''">
+                            <i class="icon iconfont icon-cuowu"></i>
+                            <span>{{passwordTip2}}</span>
+                        </label>
+                    </div>
+                    <span class="f-fr">确认密码：</span>
+                </div>
+                <div class="part">
+                    <button @click="registerRequest">注册</button>
+                    <span>如果您已有帐号，可在此<a v-link="{path: '/login'}">登录</a></span>
+                </div>
+            </div>
+        </validator>
+    </section>
+</template>
+<script>
+    import {toggle, setUser, bgToggle, pop}        from '../vuex/actions'
+    import {get, set}                         from '../js/cookieUtil'
+    import {phoneRule, getPasswordLevel}      from '../js/validate'
+    export default{
+        data(){
+            return {
+                userName: '',
+                phoneNum: '',
+                password1: '',
+                passwordTip1: '',
+                passwordLevel1: '',
+                levelPointer1: '',
+                password2: '',
+                passwordTip2: '',
+                passwordState: false,
+                hasSameUsername: false,
+                userRule: {
+                    pattern: '/^[a-zA-Z0-9\u4e00-\u9fa5_]+$/',
+                },
+            }
+        },
+        validators: {
+            phoneRule
+        },
+        created(){
+            let userName = get('user')
+            if (userName) {
+                this.setUser(userName)
+                this.$router.go('/console')
+            }
+        },
+        ready(){
+            this.bgToggle('NightSky')
+        },
+        methods: {
+            register(){
+                this.$router.go('/register');
+            },
+            validatePassword2(){
+                if(this.password2.length < 4){
+                    this.passwordTip2 = '密码太短'
+                    this.passwordState = false
+                    return
+                }
+                if(this.password2.length > 16){
+                    this.passwordTip2 = '密码太长'
+                    this.passwordState = false
+                    return
+                }
+                if(this.password1 !== this.password2){
+                    this.passwordTip2 = "两次密码输入不一致"
+                    this.passwordState = false
+                    return
+                }
+                this.passwordTip2 = ""
+                this.passwordState = true
+            },
+            showPasswordLevel(state, password){
+                var level = getPasswordLevel(password)
+                switch (level){
+                    case 0:
+                        this['passwordLevel'+state] = 0
+                        if(password.length < 4){
+                            this['passwordTip'+state] = '密码太短'
+                        }else{
+                            this['passwordTip'+state] = '密码太长'
+                        }
+                        break
+                    case 1:
+                        this['passwordLevel'+state] = 1
+                        this['levelPointer'+state] = 'password-level1'
+                        this['passwordTip'+state] = '密码强度：弱'
+                        break
+                    case 2:
+                        this['passwordLevel'+state] = 2
+                        this['levelPointer'+state] = 'password-level2'
+                        this['passwordTip'+state] = '密码强度：中'
+                        break
+                    case 3:
+                        this['passwordLevel'+state] = 3
+                        this['levelPointer'+state] = 'password-level3'
+                        this['passwordTip'+state] = '密码强度：强'
+                        break
+
+                }
+            },
+            onUsernameValid(){
+                if(this.userName !== ''){
+                    this.$http.post('/validateUsername', {
+                        userName: this.userName
+                    }).then((response)=> {
+                        let res = JSON.parse(response.body)
+                        let code = res.retcode
+                        switch (code){
+                            case 200:
+                                this.hasSameUsername = false
+                                break
+                            case 400:
+                                this.hasSameUsername = true
+                                break
+                        }
+                    }, (response)=> {
+                        console.log(response)
+                    })
+                }
+            },
+            registerRequest(){
+                if(!this.userName){
+                    this.pop({
+                        pop: true,
+                        content: '请输入用户名！'
+                    })
+                    return
+                }
+                if(!this.phoneNum){
+                    this.pop({
+                        pop: true,
+                        content: '请输入手机号！'
+                    })
+                    return
+                }
+                if(!this.password1){
+                    this.pop({
+                        pop: true,
+                        content: '请设置密码！'
+                    })
+                    return
+                }
+                if(!this.password2){
+                    this.pop({
+                        pop: true,
+                        content: '请确认密码！'
+                    })
+                    return
+                }
+                if(!this.$loginValidator.valid || this.hasSameUsername || !this.passwordState){
+                    this.pop({
+                        pop: true,
+                        content: '请确认信息！'
+                    })
+                    return
+                }
+                this.userName = this.userName.trim()
+                this.toggle()
+                this.$http.post('/register', {
+                    userName: this.userName,
+                    password: this.password2,
+                    tel: this.phoneNum
+                }).then((response)=> {
+                    this.registerResponse(response)
+                }, (response)=> {
+                    console.log(response)
+                })
+            },
+            registerResponse(response, name = this.userName){
+                this.toggle()
+                let res = JSON.parse(response.body)
+                switch (res.retcode){
+                    case 200:
+                        this.pop({
+                            pop: true,
+                            content: '<i class="icon iconfont icon-dui"></i>恭喜，注册成功！',
+                            btn1: '去首页',
+                            cb1: function () {
+                                this.pop({})
+                                this.$router.go('/')
+                            }.bind(this)
+                        })
+                        this.setUser(res.data.userName)
+                        let date = new Date(Date.now() + 60000 * 30)
+                        let hostName = location.hostname
+                        set('user', res.data.userName, date, '/', hostName)
+                        break
+                    case 400:
+                        this.pop({
+                            pop: true,
+                            content: res.retdesc,
+                            cb1: function () {
+                                this.pop({})
+                            }.bind(this)
+                        })
+                        break
+                }
+            },
+        },
+        vuex: {
+            actions: {
+                toggle,
+                setUser,
+                bgToggle,
+                pop
+            }
+        }
+    }
+</script>
+<style lang="sass">
+    @import "../style/common.scss";
+    @import "../style/components/Register.scss";
+</style>

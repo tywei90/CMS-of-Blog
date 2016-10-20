@@ -3,7 +3,7 @@
         <validator name="loginValidator">
             <div class="title">修改密码</div>
             <div class="password">
-                <i class="fa fa-key fa-fw"></i>
+                <i class="icon iconfont icon-mima"></i>
                 <input type="password"
                        placeholder="输入原密码"
                        initial="off"
@@ -12,7 +12,7 @@
                        v-validate:password1="passwordRule"
                        v-model="opw">
                 <br>
-                <i class="fa fa-key fa-fw"></i>
+                <i class="icon iconfont icon-mima"></i>
                 <input type="password"
                        placeholder="输入新密码"
                        initial="off"
@@ -21,7 +21,7 @@
                        v-validate:password2="passwordRule"
                        v-model="pw">
                 <br>
-                <i class="fa fa-key fa-fw"></i>
+                <i class="icon iconfont icon-mima"></i>
                 <input type="password"
                        placeholder="重新输入"
                        initial="off"
@@ -55,16 +55,6 @@
         },
         methods: {
             savePw(){
-                if (this.userName === '游客') {
-                    this.pop({
-                        pop: true,
-                        content: '游客无此权限',
-                        cb1: function () {
-                            this.pop({})
-                        }.bind(this)
-                    })
-                    return
-                }
                 this.$validate(true, ()=> {
                     if (this.$loginValidator.valid) {
                         if (this.pw === this.rpw) {

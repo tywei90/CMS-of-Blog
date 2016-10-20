@@ -18,7 +18,8 @@
     import myFooter     from './MyFooter.vue'
     import marked       from '../js/marked.min'
     import hljs         from '../js/highlight.min'
-    import {bgToggle}   from '../vuex/actions'
+    import {bgToggle, pop}   from '../vuex/actions'
+    import {get}    from '../js/cookieUtil'
 
     export default{
         data(){
@@ -38,16 +39,39 @@
             content: hljs.initHighlighting
         },
         created(){
+            let userName = get('user')
+            if (!userName) {
+                this.$router.go('/login')
+                return
+            }
             let id = this.$route.query.id
             this.$http.get('/article?id=' + id)
                     .then((response)=> {
-                        let body = JSON.parse(response.body)
-                        this.content = body.content
-                        this.title = body.title
-                        let d = new Date(body.date)
-                        this.date = d.getFullYear() + '年' +
-                                (d.getMonth() + 1) + '月' +
-                                d.getDate() + '日'
+                        let res = JSON.parse(response.body)
+                        let code = res.retcode
+                        let desc = res.retdesc
+                        let data = res.data
+                        switch (code){
+                            case 200:
+                                this.content = data.article.content
+                                this.title = data.article.title
+                                let d = new Date(data.article.date)
+                                this.date = d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日'
+                                break
+                            case 410:
+                                alert('未登录')
+                                break
+                            case 400:
+                                this.pop({
+                                    pop: true,
+                                    content: desc,
+                                    btn1: '返回上一页',
+                                    cb1: ()=>{
+                                        window.history.back(-1); 
+                                    }
+                                })
+                                break
+                        }
                     }, (response)=> {
                         console.log(response)
                     })
@@ -63,7 +87,8 @@
         },
         vuex: {
             actions: {
-                bgToggle
+                bgToggle,
+                pop
             }
         }
     }

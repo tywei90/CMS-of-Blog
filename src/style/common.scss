@@ -1,7 +1,7 @@
 @import "lib/normalize";
-@import "lib/font-awesome";
 @import "lib/markdown";
 @import "lib/highlight";
+@import "lib/iconfont";
 @import "variables";
 @import "mediaQuery";
 
@@ -17,4 +17,24 @@ button{
 }
 a{
   text-decoration: none;
+}
+
+.f-cb {
+    display: block;
+    zoom:1}
+
+.f-cb:after {
+    content: " ";
+    display: block;
+    font-size: 0;
+    height: 0;
+    clear: both;
+    visibility: hidden
+}
+.f-fl {
+    float: left
+}
+
+.f-fr {
+    float: right
 }

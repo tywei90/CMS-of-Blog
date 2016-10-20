@@ -7,19 +7,19 @@
         <menu class="navigation">
             <ul>
                 <li @click="$router.go('/')">
-                    <i class="fa fa-star fa-fw"></i>
+                    <i class="icon iconfont icon-zhuye"></i>
                     <span>主页</span>
                 </li>
                 <li @click="$router.go('/console/articleList')">
-                    <i class="fa fa-file-text fa-fw"></i>
+                    <i class="icon iconfont icon-wenzhang"></i>
                     <span>文章</span>
                 </li>
                 <li @click="$router.go('/console/menu')">
-                    <i class="fa fa-list-ul fa-fw"></i>
+                    <i class="icon iconfont icon-lianjie"></i>
                     <span>链接</span>
                 </li>
                 <li @click="$router.go('/console/account')">
-                    <i class="fa fa-user fa-fw"></i>
+                    <i class="icon iconfont icon-zhanghu"></i>
                     <span>账户</span>
                 </li>
             </ul>

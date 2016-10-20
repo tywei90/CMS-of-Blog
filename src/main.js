@@ -5,6 +5,7 @@ import VueRouter    from 'vue-router'
 import Vuex         from 'vuex'
 
 import Login        from './components/Login.vue'
+import Register     from './components/Register.vue'
 import Waiting      from './components/Waiting.vue'
 import Pop          from './components/Pop.vue'
 import Article      from './components/Article.vue'
@@ -14,7 +15,7 @@ import ArticleList  from './components/ArticleList.vue'
 import Archive      from './components/Archive.vue'
 import Links        from './components/Links.vue'
 import Account      from './components/Account.vue'
-import NightSky   from './components/NightSky.vue'
+import NightSky     from './components/NightSky.vue'
 import MyCanvas     from './components/MyCanvas.vue'
 
 import store        from './vuex/store'
@@ -30,8 +31,11 @@ router.map({
     '/': {
         component: Archive
     },
-    'login': {
+    '/login': {
         component: Login
+    },
+    '/register': {
+        component: Register
     },
     '/article': {
         component: Article

@@ -9,11 +9,11 @@
             </tr>
             <tr v-for="link in links">
                 <td>
-                    <i class="fa fa-plus-circle"
+                    <i class="icon iconfont icon-jia"
                        @click="addLink($index)"
                        v-if="links.length<4">
                     </i>
-                    <i class="fa fa-minus-circle"
+                    <i class="icon iconfont icon-jian"
                        @click="removeLink($index)"
                        v-if="links.length>1">
                     </i>
@@ -34,6 +34,7 @@
 <script>
     import {userName}   from '../vuex/getters'
     import {pop}        from '../vuex/actions'
+    import {get}    from '../js/cookieUtil'
     export default{
         data(){
             return {
@@ -41,9 +42,23 @@
             }
         },
         created(){
+            let userName = get('user')
+            if (!userName) {
+                return
+            }
             this.$http.post('/getLinks')
                     .then((response)=> {
-                        this.links = JSON.parse(response.body)
+                        let res = JSON.parse(response.body)
+                        let code = res.retcode
+                        let data = res.data
+                        switch (code){
+                            case 200:
+                                this.links = data.links
+                                break
+                            case 410:
+                                alert('未登录')
+                                break
+                        }
                     }, (response)=> {
                         console.log(response)
                     })
@@ -70,14 +85,24 @@
                     return
                 }
                 this.$http.post('/setLinks', this.$data)
-                        .then(()=> {
-                            this.pop({
-                                pop: true,
-                                content: '保存成功',
-                                cb1: function () {
-                                    this.pop({})
-                                }.bind(this)
-                            })
+                        .then((response)=> {
+                            let res = JSON.parse(response.body)
+                            let code = res.retcode
+                            let data = res.data
+                            switch (code){
+                                case 200:
+                                    this.pop({
+                                        pop: true,
+                                        content: '保存成功',
+                                        cb1: function () {
+                                            this.pop({})
+                                        }.bind(this)
+                                    })
+                                    break
+                                case 410:
+                                    alert('未登录')
+                                    break
+                            }
                         }, (response)=> {
                             console.log(response)
                         })

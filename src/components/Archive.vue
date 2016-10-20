@@ -27,6 +27,7 @@
     import myHeader     from './MyHeader.vue'
     import myFooter     from './MyFooter.vue'
     import {bgToggle}   from '../vuex/actions'
+    import {get}    from '../js/cookieUtil'
     export default{
         data(){
             return {
@@ -43,15 +44,30 @@
             }
         },
         created(){
+            let userName = get('user')
+            if (!userName) {
+                this.$router.go('/login')
+                return
+            }
             this.$http.get('/articleList')
-                    .then((response)=> {
-                        let arcs = JSON.parse(response.body)
-                        this.articles = arcs.sort((i, j)=> {
-                            return new Date(j.date) - new Date(i.date)
-                        })
-                    }, (response)=> {
-                        console.log(response)
-                    })
+                .then((response)=> {
+                    let res = JSON.parse(response.body)
+                    let code = res.retcode
+                    let data = res.data
+                    switch (code){
+                        case 200:
+                            this.articles = data.articles.sort((i, j)=> {
+                                return new Date(j.date) - new Date(i.date)
+                            })
+                            break
+                        case 410:
+                            alert('未登录')
+                            break
+                    }
+                    
+                }, (response)=> {
+                    console.log(response)
+                })
         },
         ready(){
             this.bgToggle('MyCanvas')

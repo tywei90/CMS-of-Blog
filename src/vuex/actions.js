@@ -7,7 +7,6 @@ function setUser({dispatch},userName){
 
 function pop({dispatch},para) {
 	para.btn1 = para.btn1||'确定'
-	para.btn2 = para.btn2||'取消'
     dispatch('POP',para)
 }
 function bgToggle({dispatch},bg) {

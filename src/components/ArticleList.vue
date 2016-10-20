@@ -18,10 +18,10 @@
                         {{article.date | dateParse}}
                     </td>
                     <td>
-                        <i class="fa fa-pencil-square-o"
+                        <i class="icon iconfont icon-xiugai"
                            @click="edit(article._id)">
                         </i>
-                        <i class="fa fa-trash"
+                        <i class="icon iconfont icon-shanchu"
                            @click="deleteItem(article._id,$index)">
                         </i>
                     </td>
@@ -53,51 +53,58 @@
         },
         created(){
             this.$http.get('/articleList')
-                    .then((response)=> {
-                        let arcs = JSON.parse(response.body)
-                        this.articles = arcs.sort((i, j)=>{
-                            return new Date(j.date) - new Date(i.date)
-                        })
-                    }, (response)=> {
-                        console.log(response)
-                    })
+                .then((response)=> {
+                    let res = JSON.parse(response.body)
+                    let code = res.retcode
+                    let data = res.data
+                    switch (code){
+                        case 200:
+                            this.articles = data.articles.sort((i, j)=> {
+                                return new Date(j.date) - new Date(i.date)
+                            })
+                            break
+                        case 410:
+                            alert('未登录')
+                            break
+                    }
+                }, (response)=> {
+                    console.log(response)
+                })
         },
         methods:{
             edit(id){
                 this.$router.go('/console/editor?id='+id)
             },
             deleteItem(id,index){
-                if(this.userName==='游客'){
-                    this.pop({
-                        pop:true,
-                        content:'游客无此权限',
-                        cb1:function() {
-                            this.pop({})
-                        }.bind(this)
-                    })
-                    return
-                }
                 this.pop({
                     pop:true,
                     content:'确定要删除吗',
                     cb1:function () {
                         this.$http.post('/delete',{id})
-                                .then(()=> {
-                                    this.pop({
-                                        pop:true,
-                                        content:'删除成功',
-                                        cb1:function () {
-                                            this.pop({})
-                                            this.articles.splice(index,1)
-                                        }.bind(this)
-                                    })
-                                }, (response)=> {
-                                    console.log(response)
-                                })
+                            .then((response)=> {
+                                let res = JSON.parse(response.body)
+                                let code = res.retcode
+                                let data = res.data
+                                switch (code){
+                                    case 200:
+                                        this.pop({
+                                            pop:true,
+                                            content:'删除成功',
+                                            cb1:function () {
+                                                this.pop({})
+                                                this.articles.splice(index,1)
+                                            }.bind(this)
+                                        })
+                                        break
+                                    case 410:
+                                        alert('未登录')
+                                        break
+                                }
+                            }, (response)=> {
+                                console.log(response)
+                            })
                     }.bind(this),
-                    cb2:function () {
-                        this.pop({})
-                    }.bind(this)
+                    btn2: '取消'
                 })
 
             },

@@ -13,6 +13,7 @@
     </header>
 </template>
 <script>
+    import {get}    from '../js/cookieUtil'
     export default{
         data(){
             return{
@@ -20,12 +21,26 @@
             }
         },
         created(){
+            let userName = get('user')
+            if (!userName) {
+                return
+            }
             this.$http.post('/getLinks')
-                    .then((response)=> {
-                        this.links = JSON.parse(response.body)
-                    }, (response)=> {
-                        console.log(response)
-                    })
+                .then((response)=> {
+                    let res = JSON.parse(response.body)
+                    let code = res.retcode
+                    let data = res.data
+                    switch (code){
+                        case 200:
+                            this.links = data.links
+                            break
+                        case 410:
+                            alert('未登录')
+                            break
+                    }
+                }, (response)=> {
+                    console.log(response)
+                })
         }
 
     }

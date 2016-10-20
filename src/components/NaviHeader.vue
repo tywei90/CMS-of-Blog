@@ -2,7 +2,7 @@
     <header class="naviHeader">
         <button class="home"
                 @click="toHome">
-            <i class="fa fa-fire fa-2x"></i>
+            <i class="icon iconfont icon-fire"></i>
         </button>
         <div class="user">
             <span>
@@ -10,7 +10,7 @@
             </span>
             <button @click="logout">
                 <span>登出</span>
-                <i class="fa fa-sign-out"></i>
+                <i class="icon iconfont icon-signout"></i>
             </button>
         </div>
     </header>

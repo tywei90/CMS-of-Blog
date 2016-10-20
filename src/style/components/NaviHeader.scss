@@ -15,6 +15,9 @@ header.naviHeader{
     &:hover{
       color:darken($baseColor1,20%);
     }
+    .icon-fire{
+      font-size: 40px;
+    }
   }
   .user {
     height: $headerHeight;

@@ -8,10 +8,10 @@
             </textarea>
             <button class="toggle"
                     @click="editToggle">
-                <i class="fa fa-chevron-left fa-fw"
+                <i class="icon iconfont icon-jiantou-left"
                    v-show="view==='edit'">
                 </i>
-                <i class="fa fa-chevron-right fa-fw"
+                <i class="icon iconfont icon-jiantou-right"
                    v-show="view==='inspect'">
                 </i>
             </button>
@@ -56,15 +56,32 @@
             if (this.$route.query.id) {
                 let id = this.$route.query.id
                 this.$http.get('/article?id=' + id)
-                        .then((response)=> {
-                            let body = JSON.parse(response.body)
-                            this.input = body.content
-                            this.title = body.title
-                            this.date = body.date
-                            this.id = id
-                        }, (response)=> {
-                            console.log(response)
-                        })
+                    .then((response)=> {
+                        let res = JSON.parse(response.body)
+                        let code = res.retcode
+                        let data = res.data
+                        switch (code){
+                            case 200:
+                                this.input = data.article.content
+                                this.title = data.article.title
+                                this.date = data.article.date
+                                this.id = data.article._id
+                                break
+                            case 410:
+                                alert('未登录')
+                                break
+                            case 400:
+                                this.pop({
+                                    pop: true,
+                                    content: desc,
+                                    btn1: '返回上一页',
+                                    cb1: ()=>{
+                                        window.history.back(-1); 
+                                    }
+                                })
+                                break
+                        }
+                    })
             } else {
                 this.date = new Date().toLocaleDateString()
             }
@@ -92,15 +109,25 @@
                 }
 
                 this.$http.post('/save', this.$data)
-                        .then(()=> {
-                            this.pop({
-                                pop: true,
-                                content: '保存成功',
-                                cb1: function () {
-                                    this.pop({})
-                                    this.$router.go('/console/articleList')
-                                }.bind(this)
-                            })
+                        .then((response)=> {
+                            let res = JSON.parse(response.body)
+                            let code = res.retcode
+                            let data = res.data
+                            switch (code){
+                                case 200:
+                                    this.pop({
+                                        pop: true,
+                                        content: '保存成功',
+                                        cb1: function () {
+                                            this.pop({})
+                                            this.$router.go('/console/articleList')
+                                        }.bind(this)
+                                    })
+                                    break
+                                case 410:
+                                    alert('未登录')
+                                    break
+                            }
                         }, (response)=> {
                             console.log(response)
                         })

@@ -3,10 +3,10 @@
         <validator name="loginValidator">
             <div class="form" @keyup.enter="loginRequest">
                 <p>
-                    <i class="fa fa-fire fa-2x"></i>
+                    <i class="icon iconfont icon-fire"></i>
                 </p>
                 <p>
-                    <i class="fa fa-user fa-fw"></i>
+                    <i class="icon iconfont icon-zhanghu"></i>
                     <input id="userName"
                            type="text"
                            name="userName"
@@ -18,12 +18,12 @@
                            v-validate:user-name="userRule">
                     <label for="userName"
                            v-if="$loginValidator.userName.pattern">
-                        <i class="fa fa-exclamation-triangle"></i>
+                        <i class="icon iconfont icon-weixian"></i>
                         <span>账号不能包含字母数字和下划线以外的字符</span>
                     </label>
                 </p>
                 <p>
-                    <i class="fa fa-key fa-fw"></i>
+                    <i class="icon iconfont icon-mima"></i>
                     <input id="password"
                            type="password"
                            placeholder="密码"
@@ -34,7 +34,7 @@
                            v-validate:password="passwordRule">
                     <label for="password"
                            v-if="$loginValidator.password.minlength">
-                        <i class="fa fa-close"></i>
+                        <i class="icon iconfont icon-cuowu"></i>
                         <span>密码太短</span>
                     </label>
                     <label for="password"
@@ -43,14 +43,8 @@
                     </label>
                 </p>
                 <p>
-                    <button @click="loginRequest">登陆
-                    </button>
-                </p>
-                <p>
-                    <span>不是站长?以</span>
-                    <span class="demo"
-                          @click="demo">游客</span>
-                    <span>身份登陆（用于演示）</span>
+                    <button @click="loginRequest">登陆</button>
+                    <span>没有账号？去<a v-link="{path: '/register'}">注册</a></span>
                 </p>
             </div>
         </validator>
@@ -86,6 +80,9 @@
             this.bgToggle('NightSky')
         },
         methods: {
+            register(){
+                this.$router.go('/register');
+            },
             loginRequest(){
                 this.userName = this.userName.trim()
                 this.$validate(true, ()=> {
@@ -105,28 +102,24 @@
 
             loginResponse(response, name = this.userName){
                 this.toggle()
-                let body = JSON.parse(response.body)
-                this.info = body.state
-                if (body.state === '登陆成功') {
-                    this.userName = name
-                    this.setUser(this.userName)
-                    let date = new Date(Date.now() + 60000 * 30)
-                    let hostName = location.hostname
-                    set('user', this.userName, date, '/', hostName)
-                    this.$router.go('/console')
+                let res = JSON.parse(response.body)
+                let code = res.retcode
+                let desc = res.retdesc
+                let data = res.data
+                switch (code){
+                    case 200:
+                        this.userName = name
+                        this.setUser(this.userName)
+                        let date = new Date(Date.now() + 60000 * 30)
+                        let hostName = location.hostname
+                        set('user', this.userName, date, '/', hostName)
+                        this.$router.go('/console')
+                        break
+                    default:
+                        alert(desc)
+                        break
                 }
             },
-            demo(){
-                this.toggle()
-                this.$http.post('/login', {
-                    userName: '游客',
-                    password: '000'
-                }).then((response)=> {
-                    this.loginResponse(response, '游客')
-                }, (response)=> {
-                    console.log(response)
-                })
-            }
         },
         vuex: {
             actions: {
