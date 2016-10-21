@@ -1,11 +1,14 @@
 <template>
     <header class="myHeader">
-        <div class="circle">
+        <div class="circle" @click="this.$router.go('/')">
             <img src="../img/me.jpg" alt="ycwalker">
         </div>
         <ul class="menu">
             <li v-for="link in links">
-                <a :href="link.href">
+                <a v-if="link.newPage" :href="link.href" target="_blank">
+                    {{link.name}}
+                </a>
+                <a v-else :href="link.href">
                     {{link.name}}
                 </a>
             </li>

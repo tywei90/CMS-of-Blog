@@ -10,6 +10,7 @@ var mongoose =  require('mongoose'),
     linkSchema = new Schema({
         name: String,
         href: String,
+        newPage: Boolean
     }),
 
     userSchema = new Schema({

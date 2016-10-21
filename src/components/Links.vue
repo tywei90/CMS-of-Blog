@@ -6,6 +6,7 @@
             <tr>
                 <th>链接名称</th>
                 <th>链接地址</th>
+                <th>新开页面</th>
             </tr>
             <tr v-for="link in links">
                 <td>
@@ -21,6 +22,11 @@
                 </td>
                 <td>
                     <input type="text" v-model="link.href">
+                </td>
+                <td>
+                    <span class="check" @click="changeCheckState($index)">
+                        <i class="icon iconfont icon-fuxuangougou" :class="{'unChecked': !link.newPage}"></i>
+                    </span>
                 </td>
             </tr>
             </tbody>
@@ -64,26 +70,20 @@
                     })
         },
         methods: {
+            changeCheckState(index){
+                this.links[index].newPage = !this.links[index].newPage
+            },
             addLink(i){
                 this.links.splice(i + 1, 0, {
                     name: '',
-                    href: ''
+                    href: '',
+                    newPage: true
                 })
             },
             removeLink(i){
                 this.links.splice(i, 1)
             },
             saveLinks(){
-                if (this.userName === '游客') {
-                    this.pop({
-                        pop: true,
-                        content: '游客无此权限',
-                        cb1: function () {
-                            this.pop({})
-                        }.bind(this)
-                    })
-                    return
-                }
                 this.$http.post('/setLinks', this.$data)
                         .then((response)=> {
                             let res = JSON.parse(response.body)
