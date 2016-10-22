@@ -52,7 +52,7 @@
             if (!userName) {
                 return
             }
-            this.$http.post('/getLinks')
+            this.$http.post('/web/getLinks')
                     .then((response)=> {
                         let res = JSON.parse(response.body)
                         let code = res.retcode
@@ -84,7 +84,7 @@
                 this.links.splice(i, 1)
             },
             saveLinks(){
-                this.$http.post('/setLinks', this.$data)
+                this.$http.post('/web/setLinks', this.$data)
                         .then((response)=> {
                             let res = JSON.parse(response.body)
                             let code = res.retcode

@@ -52,7 +52,7 @@
             }
         },
         created(){
-            this.$http.get('/articleList')
+            this.$http.get('/web/articleList')
                 .then((response)=> {
                     let res = JSON.parse(response.body)
                     let code = res.retcode
@@ -80,7 +80,7 @@
                     pop:true,
                     content:'确定要删除吗',
                     cb1:function () {
-                        this.$http.post('/delete',{id})
+                        this.$http.post('/web/delete',{id})
                             .then((response)=> {
                                 let res = JSON.parse(response.body)
                                 let code = res.retcode

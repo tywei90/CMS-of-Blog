@@ -6,6 +6,13 @@ function ChineseNameRule(name) {
 }
 
 /*
+ * 是否是只有英文字母开头，数字和下划线的用户名(4-16位)
+ */
+function userRule(name) {
+    return /^[a-z]{1}[a-z0-9_]{3,15}$/.test(name);
+}
+
+/*
  * 是否是手机号码
  */
 function phoneRule(phone) {
@@ -121,4 +128,4 @@ function getPasswordLevel(psw) {
     return getPswLevel(psw);
 }
 
-export {ChineseNameRule, phoneRule, mailRule, QQRule, leapYearRule, IDcardRule, isSimplePassword, isOKPassword, getPasswordLevel}
+export {ChineseNameRule, userRule, phoneRule, mailRule, QQRule, leapYearRule, IDcardRule, isSimplePassword, isOKPassword, getPasswordLevel}

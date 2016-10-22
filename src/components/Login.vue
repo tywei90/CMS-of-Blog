@@ -15,11 +15,11 @@
                            initial="off"
                            detect-change="off"
                            detect-blur="off"
-                           v-validate:user-name="userRule">
+                           v-validate:user-name="['userRule']">
                     <label for="userName"
-                           v-if="$loginValidator.userName.pattern">
+                           v-if="$loginValidator.userName.userRule">
                         <i class="icon iconfont icon-weixian"></i>
-                        <span>账号不能包含字母数字和下划线以外的字符</span>
+                        <span>4~16个字符，支持小写英文数字和下划线，请以英文字母开头</span>
                     </label>
                 </p>
                 <p>
@@ -37,10 +37,6 @@
                         <i class="icon iconfont icon-cuowu"></i>
                         <span>密码太短</span>
                     </label>
-                    <label for="password"
-                           v-if="true">
-                        <span>{{info}}</span>
-                    </label>
                 </p>
                 <p>
                     <button @click="loginRequest">登陆</button>
@@ -53,21 +49,21 @@
 <script>
     import {toggle, setUser, bgToggle}    from '../vuex/actions'
     import {get, set}           from '../js/cookieUtil'
+    import {userRule}      from '../js/validate'
     export default{
         data(){
             return {
                 userName: '',
                 password: '',
-                info: '',
-                userRule: {
-                    pattern: '/^[a-zA-Z0-9\u4e00-\u9fa5_]+$/',
-                },
                 passwordRule: {
                     minlength: 4,
                     maxlength: 16,
                 }
 
             }
+        },
+        validators: {
+            userRule
         },
         created(){
             let userName = get('user')
@@ -88,7 +84,7 @@
                 this.$validate(true, ()=> {
                     if (this.$loginValidator.valid) {
                         this.toggle()
-                        this.$http.post('/login', {
+                        this.$http.post('/web/login', {
                             userName: this.userName,
                             password: this.password
                         }).then((response)=> {

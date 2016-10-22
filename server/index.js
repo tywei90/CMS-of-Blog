@@ -3,9 +3,9 @@ var router = express.Router()
 var db = require('./db')
 var init = require('./init')
 
-router.get('/', function(req, res, next) {
-    res.render('index', { title: 'CMS-blog' });
-})
+// router.get('/', function(req, res, next) {
+//     res.render('index', { title: 'CMS-blog' });
+// })
 
 router.post('/validateUsername', function(req, res, next) {
     var userName = req.body.userName,
@@ -153,6 +153,15 @@ router.post('/register', function(req, res, next) {
             retdesc: '',
             data: {}
         }
+    // 校验用户名，作为注册以后的用户博客对应的网址路径
+    if(!/^[a-z]{1}[a-z0-9_]{3,15}$/.test(name)){
+        resBody = {
+            retcode: 401,
+            retdesc: '用户名格式错误',
+            data: {}
+        }
+        res.send(resBody)
+    }
     db.User.findOne({ name: name }, function(err, doc) {
         if (err) {
             return console.log(err)
@@ -164,12 +173,15 @@ router.post('/register', function(req, res, next) {
             }
             res.send(resBody)
         } else {
+            // '设置'的href跟用户名有关
+            var links = init.links
+            links[0].href = '/' + name + links[0].href
             new db.User({
                 name: name,
                 password: password,
                 tel: tel,
                 articles: init.articles,
-                links: init.links
+                links: links
             }).save(function(err) {
                 if (err) return console.log(err)
                 resBody = {

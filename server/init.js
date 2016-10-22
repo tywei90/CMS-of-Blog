@@ -10,7 +10,7 @@ module.exports = {
     }],
     links: [{
         name: '设置',
-        href: '/#!/console',
+        href: '#!/console',
         newPage: false
     },{
         name: '原博客',

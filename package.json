@@ -3,7 +3,7 @@
   "description": "A Blog CMS Powered by Vue.js",
   "author": "ycwalker tianyao",
   "license": "MIT",
-  "version": "0.3.0",
+  "version": "0.3.5",
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --color --hot",
     "build": "cross-env NODE_ENV=production webpack --progress --hide-modules",
@@ -13,6 +13,7 @@
   "dependencies": {
     "babel-runtime": "^6.0.0",
     "body-parser": "~1.15.1",
+    "colors": "^1.1.2",
     "cookie-parser": "~1.4.3",
     "express": "~4.13.4",
     "jade": "~1.11.0",

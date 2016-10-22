@@ -16,10 +16,10 @@
                             detect-change="off"
                             detect-blur="on"
                             @valid="onUsernameValid"
-                            v-validate:user-name="userRule">
-                        <label for="userName" v-if="$loginValidator.userName.pattern">
+                            v-validate:user-name="['userRule']">
+                        <label for="userName" v-if="$loginValidator.userName.userRule">
                             <i class="icon iconfont icon-cuowu"></i>
-                            <span>账号不能包含字母数字和下划线以外的字符</span>
+                            <span>4~16个字符，支持小写英文数字和下划线，请以英文字母开头</span>
                         </label>
                         <label for="userName" v-if="hasSameUsername">
                             <i class="icon iconfont icon-weixian"></i>
@@ -91,7 +91,7 @@
 <script>
     import {toggle, setUser, bgToggle, pop}        from '../vuex/actions'
     import {get, set}                         from '../js/cookieUtil'
-    import {phoneRule, getPasswordLevel}      from '../js/validate'
+    import {userRule, phoneRule, getPasswordLevel}      from '../js/validate'
     export default{
         data(){
             return {
@@ -105,12 +105,10 @@
                 passwordTip2: '',
                 passwordState: false,
                 hasSameUsername: false,
-                userRule: {
-                    pattern: '/^[a-zA-Z0-9\u4e00-\u9fa5_]+$/',
-                },
             }
         },
         validators: {
+            userRule,
             phoneRule
         },
         created(){
@@ -177,7 +175,7 @@
             },
             onUsernameValid(){
                 if(this.userName !== ''){
-                    this.$http.post('/validateUsername', {
+                    this.$http.post('/web/validateUsername', {
                         userName: this.userName
                     }).then((response)=> {
                         let res = JSON.parse(response.body)
@@ -233,7 +231,7 @@
                 }
                 this.userName = this.userName.trim()
                 this.toggle()
-                this.$http.post('/register', {
+                this.$http.post('/web/register', {
                     userName: this.userName,
                     password: this.password2,
                     tel: this.phoneNum

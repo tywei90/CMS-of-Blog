@@ -58,7 +58,7 @@
                 this.$validate(true, ()=> {
                     if (this.$loginValidator.valid) {
                         if (this.pw === this.rpw) {
-                            this.$http.post('/savePw', {
+                            this.$http.post('/web/savePw', {
                                 userName:this.userName,
                                 oldPassword: this.opw,
                                 newPassword: this.pw

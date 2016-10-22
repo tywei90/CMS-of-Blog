@@ -46,10 +46,10 @@
         created(){
             let userName = get('user')
             if (!userName) {
-                this.$router.go('/login')
+                location.href = '/#!/login'
                 return
             }
-            this.$http.get('/articleList')
+            this.$http.get('/web/articleList')
                 .then((response)=> {
                     let res = JSON.parse(response.body)
                     let code = res.retcode

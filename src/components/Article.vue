@@ -45,7 +45,7 @@
                 return
             }
             let id = this.$route.query.id
-            this.$http.get('/article?id=' + id)
+            this.$http.get('/web/article?id=' + id)
                     .then((response)=> {
                         let res = JSON.parse(response.body)
                         let code = res.retcode

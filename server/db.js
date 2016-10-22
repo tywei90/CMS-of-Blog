@@ -1,3 +1,17 @@
+// node环境console.log颜色插件
+var colors = require('colors')
+colors.setTheme({
+  silly: 'rainbow',
+  input: 'grey',
+  verbose: 'cyan',
+  prompt: 'grey',
+  info: 'green',
+  data: 'grey',
+  help: 'cyan',
+  warn: 'yellow',
+  debug: 'blue',
+  error: 'red'
+})
 var mongoose =  require('mongoose'),
     Schema =    mongoose.Schema
 
@@ -28,10 +42,10 @@ mongoose.set('debug', true)
 
 var db = mongoose.connection
 db.on('error', function () {
-    console.log('db error')
+    console.log('db error'.error)
 })
 db.once('open', function () {
-    console.log('db opened')
+    console.log('db opened'.silly)
 })
 
 module.exports = {

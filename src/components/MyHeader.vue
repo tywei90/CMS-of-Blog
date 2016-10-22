@@ -28,7 +28,7 @@
             if (!userName) {
                 return
             }
-            this.$http.post('/getLinks')
+            this.$http.post('/web/getLinks')
                 .then((response)=> {
                     let res = JSON.parse(response.body)
                     let code = res.retcode

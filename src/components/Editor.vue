@@ -55,7 +55,7 @@
         created(){
             if (this.$route.query.id) {
                 let id = this.$route.query.id
-                this.$http.get('/article?id=' + id)
+                this.$http.get('/web/article?id=' + id)
                     .then((response)=> {
                         let res = JSON.parse(response.body)
                         let code = res.retcode
@@ -108,7 +108,7 @@
                     this.date = new Date()
                 }
 
-                this.$http.post('/save', this.$data)
+                this.$http.post('/web/save', this.$data)
                         .then((response)=> {
                             let res = JSON.parse(response.body)
                             let code = res.retcode

@@ -4,8 +4,6 @@ import VueValidator from 'vue-validator'
 import VueRouter    from 'vue-router'
 import Vuex         from 'vuex'
 
-import Login        from './components/Login.vue'
-import Register     from './components/Register.vue'
 import Waiting      from './components/Waiting.vue'
 import Pop          from './components/Pop.vue'
 import Article      from './components/Article.vue'
@@ -30,12 +28,6 @@ let router = new VueRouter()
 router.map({
     '/': {
         component: Archive
-    },
-    '/login': {
-        component: Login
-    },
-    '/register': {
-        component: Register
     },
     '/article': {
         component: Article
