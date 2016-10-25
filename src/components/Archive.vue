@@ -7,11 +7,11 @@
                     v-for="year in years">
                     <p>{{year}}</p>
                     <ul>
-                        <li v-for="article in archive[year]">
-                            <span class="date">
+                        <li class="f-cb" v-for="article in archive[year]">
+                            <span class="date f-fl">
                                 {{article.date | dateParse}}
                             </span>
-                            <span class="title"
+                            <span class="title f-fl"
                                   @click="detail(article._id)">
                                 {{article.title}}
                             </span>
@@ -27,7 +27,7 @@
     import myHeader     from './MyHeader.vue'
     import myFooter     from './MyFooter.vue'
     import {bgToggle}   from '../vuex/actions'
-    import {get}    from '../js/cookieUtil'
+    import {set, get}    from '../js/cookieUtil'
     export default{
         data(){
             return {
@@ -44,12 +44,19 @@
             }
         },
         created(){
+            // 登录状态进入页面，重新计时cookie失效时间
             let userName = get('user')
-            if (!userName) {
-                location.href = '/#!/login'
-                return
+            if (userName) {
+                let date = new Date(Date.now() + 60000 * 30)
+                let hostName = location.hostname
+                set('user', userName, date, '/', hostName)
             }
-            this.$http.get('/web/articleList')
+            // 获取访问博客的用户名(地址栏上)
+            var href = document.URL
+            var indexEnd = href.lastIndexOf('#!')
+            var indexStart = href.lastIndexOf('/', indexEnd) + 1
+            let visitUserName = href.slice(indexStart, indexEnd)
+            this.$http.post('/web/common/articleList',{name: visitUserName})
                 .then((response)=> {
                     let res = JSON.parse(response.body)
                     let code = res.retcode
@@ -60,9 +67,16 @@
                                 return new Date(j.date) - new Date(i.date)
                             })
                             break
-                        case 410:
-                            alert('未登录')
-                            break
+                        default:
+                            this.pop({
+                                pop: true,
+                                content: desc,
+                                btn1: '返回上一页',
+                                cb1: ()=>{
+                                    this.pop({})
+                                    window.history.back(-1); 
+                                }
+                            })
                     }
                     
                 }, (response)=> {
@@ -107,5 +121,6 @@
     }
 </script>
 <style lang="sass">
+    @import "../style/common.scss";
     @import "../style/components/Archive.scss";
 </style>

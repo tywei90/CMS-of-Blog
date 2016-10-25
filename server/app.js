@@ -36,7 +36,7 @@ app.get(/^\/[a-z]{1}[a-z0-9_]{3,15}$/, function(req, res, next) {
     db.User.count({name: pathPara}, function(err, num) {
         if (err) return console.log(err)
         if(num > 0){
-            res.render('index', { title: 'CMS-blog' });
+            res.render('main', { title: 'CMS-blog' });
         }else{
             // 自定义错误处理
             res.status(403);

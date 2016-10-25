@@ -47,7 +47,7 @@
     </section>
 </template>
 <script>
-    import {toggle, setUser, bgToggle}    from '../vuex/actions'
+    import {toggle, bgToggle}    from '../vuex/actions'
     import {get, set}           from '../js/cookieUtil'
     import {userRule}      from '../js/validate'
     export default{
@@ -68,17 +68,13 @@
         created(){
             let userName = get('user')
             if (userName) {
-                this.setUser(userName)
-                this.$router.go('/console')
+                location.href='/' + userName + '#!/console'
             }
         },
         ready(){
             this.bgToggle('NightSky')
         },
         methods: {
-            register(){
-                this.$router.go('/register');
-            },
             loginRequest(){
                 this.userName = this.userName.trim()
                 this.$validate(true, ()=> {
@@ -105,11 +101,16 @@
                 switch (code){
                     case 200:
                         this.userName = name
-                        this.setUser(this.userName)
                         let date = new Date(Date.now() + 60000 * 30)
                         let hostName = location.hostname
                         set('user', this.userName, date, '/', hostName)
-                        this.$router.go('/console')
+                        // 判断是否有backUrl
+                        var backUrl = this.$route.query.backUrl
+                        if(backUrl){
+                            location.href = backUrl
+                        }else{
+                            location.href='/' + this.userName + '#!/console'
+                        }
                         break
                     default:
                         alert(desc)
@@ -120,13 +121,11 @@
         vuex: {
             actions: {
                 toggle,
-                setUser,
                 bgToggle
             }
         }
     }
 </script>
 <style lang="sass">
-    @import "../style/common.scss";
     @import "../style/components/Login.scss";
 </style>

@@ -1,7 +1,7 @@
 <template>
     <navi-header></navi-header>
     <aside class="console">
-        <div class="circle">
+        <div class="circle" @click="$router.go('/')">
             <img src="../img/me.jpg" alt="me">
         </div>
         <menu class="navigation">
@@ -28,17 +28,43 @@
     <router-view></router-view>
 </template>
 <script>
-import NaviHeader               from './NaviHeader.vue'
-    import {setUser,bgToggle}   from '../vuex/actions'
-    import {userName}           from '../vuex/getters'
+    import NaviHeader               from './NaviHeader.vue'
+    import {pop, bgToggle}   from '../vuex/actions'
     import {get, set, unset}    from '../js/cookieUtil'
     export default{
         created(){
-            let userName = get('user')
-            if (!this.userName && !userName) {
-                this.$router.go('/login')
-            } else if (!this.userName) {
-                this.setUser(userName)
+            let loginUserName = get('user')
+            // 获取访问博客的用户名(地址栏上)
+            var href = document.URL
+            var indexEnd = href.lastIndexOf('#!')
+            var indexStart = href.lastIndexOf('/', indexEnd) + 1
+            let visitUserName = href.slice(indexStart, indexEnd)
+            // 登录状态进入页面，重新计时cookie失效时间
+            if (loginUserName) {
+                let date = new Date(Date.now() + 60000 * 30)
+                let hostName = location.hostname
+                set('user', loginUserName, date, '/', hostName)
+            }
+            if (!loginUserName || loginUserName!==visitUserName) {
+                this.pop({
+                    pop: true,
+                    content: '非博主不能访问！',
+                    btn1: '博主登录',
+                    cb1: function () {
+                        this.pop({})
+                        unset('user', '/', location.hostname)
+                        location.href='/#!/login'+'?backUrl='+encodeURIComponent(document.URL)
+                    }.bind(this),
+                    btn2: '返回',
+                    cb2: function () {
+                        this.pop({})
+                        if(history.length > 1){
+                            history.back(-2)
+                        }else{
+                            location.href='/#!/'
+                        }
+                    }.bind(this)
+                })
             }
         },
         components: {
@@ -48,11 +74,8 @@ import NaviHeader               from './NaviHeader.vue'
             this.bgToggle('NightSky')
         },
         vuex: {
-            getters: {
-                userName,
-            },
             actions: {
-                setUser,
+                pop,
                 bgToggle
             }
         }

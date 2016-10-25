@@ -31,7 +31,6 @@
     </section>
 </template>
 <script>
-    import {userName}   from '../vuex/getters'
     import {pop}        from '../vuex/actions'
     export default{
         data(){
@@ -52,7 +51,7 @@
             }
         },
         created(){
-            this.$http.get('/web/articleList')
+            this.$http.get('/web/console/articleList')
                 .then((response)=> {
                     let res = JSON.parse(response.body)
                     let code = res.retcode
@@ -127,9 +126,6 @@
             }
         },
         vuex: {
-            getters: {
-                userName,
-            },
             actions:{
                 pop,
             }

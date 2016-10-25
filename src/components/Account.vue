@@ -38,8 +38,7 @@
     </section>
 </template>
 <script>
-    import {userName}   from '../vuex/getters'
-    import {setUser, pop}        from '../vuex/actions'
+    import {pop}        from '../vuex/actions'
     import {unset}           from '../js/cookieUtil'
     export default{
         data(){
@@ -59,35 +58,34 @@
                     if (this.$loginValidator.valid) {
                         if (this.pw === this.rpw) {
                             this.$http.post('/web/savePw', {
-                                userName:this.userName,
                                 oldPassword: this.opw,
                                 newPassword: this.pw
                             }).then((res)=> {
                                 let data = JSON.parse(res.body);
-                                if(data.retcode === 200){
-                                    this.pop({
-                                        pop: true,
-                                        content: data.retdesc,
-                                        btn1: '重新登录',
-                                        btn2: '返回',
-                                        cb1: function () {
-                                            this.pop({})
-                                            unset('user', '/', location.hostname)
-                                            this.setUser('')
-                                            this.$router.go('/login')
-                                        }.bind(this),
-                                        cb2: function () {
-                                            this.pop({})
-                                        }.bind(this)
-                                    })
-                                }else{
-                                    this.pop({
-                                        pop: true,
-                                        content: data.retdesc,
-                                        cb1: function () {
-                                            this.pop({})
-                                        }.bind(this)
-                                    })
+                                switch (data.retcode){
+                                    case 200:
+                                        this.pop({
+                                            pop: true,
+                                            content: data.retdesc,
+                                            btn1: '重新登录',
+                                            cb1: function () {
+                                                this.pop({})
+                                                unset('user', '/', location.hostname)
+                                                location.href = "/#!/login"
+                                            }.bind(this),
+                                        })
+                                        break
+                                    case 410:
+                                        alert('未登录')
+                                        break
+                                    default:
+                                        this.pop({
+                                            pop: true,
+                                            content: data.retdesc,
+                                            cb1: function () {
+                                                this.pop({})
+                                            }.bind(this)
+                                        })
                                 }
                             }, (res)=> {
                                 console.log(res)
@@ -114,12 +112,8 @@
             }
         },
         vuex: {
-            getters: {
-                userName
-            },
             actions: {
-                pop,
-                setUser
+                pop
             }
         }
     }

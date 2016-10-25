@@ -16,29 +16,26 @@
     </header>
 </template>
 <script>
-    import {setUser}    from '../vuex/actions'
-    import {userName}   from '../vuex/getters'
-    import {unset}      from '../js/cookieUtil'
+    import {get, unset}      from '../js/cookieUtil'
     export default{
+        data(){
+            return {
+                userName: ''
+            }
+        },
+        created(){
+            this.userName = get('user')
+        },
         methods: {
             toHome() {
-                this.$router.go('/')
+                location.href = '/#!/'
             },
             logout() {
                 unset('user', '/', location.hostname)
-                this.setUser('')
-                this.$router.go('/login')
+                location.href = '/#!/login'
             }
         },
-        vuex: {
-            getters: {
-                userName
-            },
-            actions: {
-                setUser
-            }
-        }
-        , computed: {
+        computed: {
             time(){
                 let hours = new Date().getHours()
                 if (hours > 5 && hours < 12) {

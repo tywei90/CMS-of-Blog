@@ -31,7 +31,6 @@
 <script>
     import marked       from '../js/marked.min'
     import hljs         from '../js/highlight.min'
-    import {userName}   from '../vuex/getters'
     import {pop}        from '../vuex/actions'
     export default{
         data(){
@@ -55,7 +54,7 @@
         created(){
             if (this.$route.query.id) {
                 let id = this.$route.query.id
-                this.$http.get('/web/article?id=' + id)
+                this.$http.get('/web/console/article?id=' + id)
                     .then((response)=> {
                         let res = JSON.parse(response.body)
                         let code = res.retcode
@@ -89,16 +88,6 @@
 
         methods: {
             send(){
-                if (this.userName === '游客') {
-                    this.pop({
-                        pop: true,
-                        content: '游客无此权限',
-                        cb1: function () {
-                            this.pop({})
-                        }.bind(this)
-                    })
-                    return
-                }
                 this.title = this.title.trim()
                 if (!this.title) {
                     alert('请输入标题')
@@ -169,9 +158,6 @@
             hljs.initHighlighting.called = false
         },
         vuex: {
-            getters: {
-                userName
-            },
             actions: {
                 pop
             }

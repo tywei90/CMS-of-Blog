@@ -19,7 +19,7 @@
     import marked       from '../js/marked.min'
     import hljs         from '../js/highlight.min'
     import {bgToggle, pop}   from '../vuex/actions'
-    import {get}    from '../js/cookieUtil'
+    import {set, get}    from '../js/cookieUtil'
 
     export default{
         data(){
@@ -39,13 +39,20 @@
             content: hljs.initHighlighting
         },
         created(){
+            // 登录状态进入页面，重新计时cookie失效时间
             let userName = get('user')
-            if (!userName) {
-                this.$router.go('/login')
-                return
+            if (userName) {
+                let date = new Date(Date.now() + 60000 * 30)
+                let hostName = location.hostname
+                set('user', userName, date, '/', hostName)
             }
             let id = this.$route.query.id
-            this.$http.get('/web/article?id=' + id)
+            // 获取访问博客的用户名(地址栏上)
+            var href = document.URL
+            var indexEnd = href.lastIndexOf('#!')
+            var indexStart = href.lastIndexOf('/', indexEnd) + 1
+            let visitUserName = href.slice(indexStart, indexEnd)
+            this.$http.post('/web/common/article?id=' + id, {name: visitUserName})
                     .then((response)=> {
                         let res = JSON.parse(response.body)
                         let code = res.retcode
@@ -58,19 +65,16 @@
                                 let d = new Date(data.article.date)
                                 this.date = d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日'
                                 break
-                            case 410:
-                                alert('未登录')
-                                break
-                            case 400:
+                            default:
                                 this.pop({
                                     pop: true,
                                     content: desc,
                                     btn1: '返回上一页',
                                     cb1: ()=>{
+                                        this.pop({})
                                         window.history.back(-1); 
                                     }
                                 })
-                                break
                         }
                     }, (response)=> {
                         console.log(response)

@@ -5,7 +5,6 @@ Vue.use(Vuex)
 
 const state = {
     waiting: false,
-    userName: '',
     popPara: {
         pop: false
     },
@@ -14,7 +13,6 @@ const state = {
 const mutations = {
 
     TOGGLE: (state)=>state.waiting = !state.waiting,
-    SETUSER: (state, userName)=>state.userName = userName,
     POP: (state, para)=>state.popPara = para,
     BGTOGGLE: (state,bg)=>state.bg=bg
 

@@ -2,6 +2,7 @@
 .shade {
     font-weight: 100;
     @include shade();
+    z-index: 12;
     .content {
         position: absolute;
         width: 400px;
@@ -31,7 +32,7 @@
                 width: 100px;
                 height: 30px;
                 font-size: 14px;
-                line-height: 30px;
+                // line-height: 30px;
             }
         }
     }

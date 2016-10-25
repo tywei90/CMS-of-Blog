@@ -3,9 +3,27 @@ var router = express.Router()
 var db = require('./db')
 var init = require('./init')
 
-// router.get('/', function(req, res, next) {
-//     res.render('index', { title: 'CMS-blog' });
-// })
+
+router.get('/registedUsers', function(req, res, next) {
+    var resBody = {
+        retcode: '',
+        retdesc: '',
+        data: {}
+    }
+    db.User.find(null, '-_id name', function(err, doc) {
+        if (err) {
+            return console.log(err)
+        }
+        resBody = {
+            retcode: 200,
+            retdesc: '请求成功',
+            data: {
+                users: doc
+            }
+        }
+        res.send(resBody)
+    })
+})
 
 router.post('/validateUsername', function(req, res, next) {
     var userName = req.body.userName,
@@ -14,6 +32,14 @@ router.post('/validateUsername', function(req, res, next) {
             retdesc: '',
             data: {}
         }
+    if (!userName) {
+        resBody = {
+            retcode: 400,
+            retdesc: '参数错误',
+            data: {}
+        }
+        res.send(resBody)
+    }
     db.User.count({ name: userName }, function(err, num) {
         if (err) {
             return console.log(err)
@@ -26,7 +52,7 @@ router.post('/validateUsername', function(req, res, next) {
                 }
             } else {
                 resBody = {
-                    retcode: 400,
+                    retcode: 401,
                     retdesc: '已有同名账号',
                     data: {}
                 }
@@ -36,9 +62,9 @@ router.post('/validateUsername', function(req, res, next) {
     })
 })
 
-router.get('/article', function(req, res, next) {
+router.get('/console/article', function(req, res, next) {
     var id = req.query.id
-    var name = req.cookies['user']
+    var name = req.cookies.user
     var resBody = {
         retcode: '',
         retdesc: '',
@@ -77,8 +103,80 @@ router.get('/article', function(req, res, next) {
     })
 })
 
-router.get('/articleList', function(req, res, next) {
-    var name = req.cookies['user']
+router.post('/common/article', function(req, res, next) {
+    var id = req.query.id
+    var name = req.body.name
+    var resBody = {
+        retcode: '',
+        retdesc: '',
+        data: {}
+    }
+    if (!name || !id) {
+        resBody = {
+            retcode: 400,
+            retdesc: '参数错误',
+            data: {}
+        }
+        res.send(resBody)
+    }
+    db.User.findOne({ name: name }, function(err, doc) {
+        if (err) {
+            return console.log(err)
+        } else if (doc) {
+            var article = doc.articles.id(id)
+            if(article){
+                resBody = {
+                    retcode: 200,
+                    retdesc: '请求成功',
+                    data: {
+                        article: article
+                    }
+                }
+            }else{
+                resBody = {
+                    retcode: 401,
+                    retdesc: '参数错误',
+                    data: {}
+                }
+            }
+            res.send(resBody)
+        }
+    })
+})
+
+router.post('/common/articleList', function(req, res, next) {
+    var name = req.body.name
+    var resBody = {
+        retcode: '',
+        retdesc: '',
+        data: {}
+    }
+    if (!name) {
+        resBody = {
+            retcode: 401,
+            retdesc: '参数错误',
+            data: {}
+        }
+        res.send(resBody)
+    }
+    db.User.findOne({ name: name }, function(err, doc) {
+        if (err) {
+            return console.log(err)
+        } else if (doc) {
+            resBody = {
+                retcode: 200,
+                retdesc: '请求成功',
+                data: {
+                    articles: doc.articles
+                }
+            }
+            res.send(resBody)
+        }
+    })
+})
+
+router.get('/console/articleList', function(req, res, next) {
+    var name = req.cookies.user
     var resBody = {
         retcode: '',
         retdesc: '',
@@ -198,7 +296,7 @@ router.post('/register', function(req, res, next) {
 })
 
 router.post('/save', function(req, res, next) {
-    var name = req.cookies['user']
+    var name = req.cookies.user
     var resBody = {
         retcode: '',
         retdesc: '',
@@ -243,8 +341,39 @@ router.post('/save', function(req, res, next) {
     })
 })
 
-router.post('/getLinks', function(req, res, next) {
-    var name = req.cookies['user']
+router.post('/common/getLinks', function(req, res, next) {
+    var name = req.body.name
+    var resBody = {
+        retcode: '',
+        retdesc: '',
+        data: {}
+    }
+    if (!name) {
+        resBody = {
+            retcode: 401,
+            retdesc: '参数错误',
+            data: {}
+        }
+        res.send(resBody)
+    }
+    db.User.findOne({ name: name }, function(err, doc) {
+        if (err) {
+            return console.log(err)
+        } else if (doc) {
+            resBody = {
+                retcode: 200,
+                retdesc: '请求成功',
+                data: {
+                    links: doc.links
+                }
+            }
+            res.send(resBody)
+        }
+    })
+})
+
+router.get('/console/getLinks', function(req, res, next) {
+    var name = req.cookies.user
     var resBody = {
         retcode: '',
         retdesc: '',
@@ -275,7 +404,7 @@ router.post('/getLinks', function(req, res, next) {
 })
 
 router.post('/setLinks', function(req, res, next) {
-    var name = req.cookies['user']
+    var name = req.cookies.user
     var resBody = {
         retcode: '',
         retdesc: '',
@@ -293,7 +422,6 @@ router.post('/setLinks', function(req, res, next) {
         if (err) {
             return console.log(err)
         } else if (doc) {
-            // doc.links.remove()
             doc.links = req.body.links
             doc.save(function(err) {
                 if (err) return console.log(err)
@@ -309,7 +437,7 @@ router.post('/setLinks', function(req, res, next) {
 })
 
 router.post('/savePw', function(req, res, next) {
-    var name = req.body.userName,
+    var name = req.cookies.user,
         oldPassword = req.body.oldPassword,
         newPassword = req.body.newPassword,
         resBody = {
@@ -317,6 +445,22 @@ router.post('/savePw', function(req, res, next) {
             retdesc: '',
             data: {}
         }
+    if(!oldPassword || !newPassword){
+        resBody = {
+            retcode: 400,
+            retdesc: '参数错误',
+            data: {}
+        }
+        res.send(resBody)
+    }
+    if (!name) {
+        resBody = {
+            retcode: 410,
+            retdesc: '未登录',
+            data: {}
+        }
+        res.send(doc)
+    }
     db.User.findOne({ name: name }, 'password', function(err, doc) {
         if (err) {
             return console.log(err);
@@ -352,7 +496,7 @@ router.post('/savePw', function(req, res, next) {
 })
 
 router.post('/delete', function(req, res, next) {
-    var name = req.cookies['user']
+    var name = req.cookies.user
     var resBody = {
         retcode: '',
         retdesc: '',

@@ -4,24 +4,31 @@
 @import "lib/iconfont";
 @import "variables";
 @import "mediaQuery";
-
-html,body{
-  height: 100%;
-  font-family: $fontGothic;
+html,
+body {
+    height: 100%;
+    font-family: $fontGothic;
 }
 
-button{
-  border: none;
-  outline: none;
-  background-color: transparent;
+button {
+    border: none;
+    outline: none;
+    background-color: transparent;
 }
-a{
-  text-decoration: none;
+
+a {
+    text-decoration: none;
+}
+
+em,
+i {
+    font-style: normal;
 }
 
 .f-cb {
     display: block;
-    zoom:1}
+    zoom: 1
+}
 
 .f-cb:after {
     content: " ";
@@ -31,6 +38,7 @@ a{
     clear: both;
     visibility: hidden
 }
+
 .f-fl {
     float: left
 }

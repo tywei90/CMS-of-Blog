@@ -38,9 +38,7 @@
 </template>
 
 <script>
-    import {userName}   from '../vuex/getters'
     import {pop}        from '../vuex/actions'
-    import {get}    from '../js/cookieUtil'
     export default{
         data(){
             return {
@@ -48,26 +46,22 @@
             }
         },
         created(){
-            let userName = get('user')
-            if (!userName) {
-                return
-            }
-            this.$http.post('/web/getLinks')
-                    .then((response)=> {
-                        let res = JSON.parse(response.body)
-                        let code = res.retcode
-                        let data = res.data
-                        switch (code){
-                            case 200:
-                                this.links = data.links
-                                break
-                            case 410:
-                                alert('未登录')
-                                break
-                        }
-                    }, (response)=> {
-                        console.log(response)
-                    })
+            this.$http.get('/web/console/getLinks')
+            .then((response)=> {
+                let res = JSON.parse(response.body)
+                let code = res.retcode
+                let data = res.data
+                switch (code){
+                    case 200:
+                        this.links = data.links
+                        break
+                    case 410:
+                        alert('未登录')
+                        break
+                }
+            }, (response)=> {
+                console.log(response)
+            })
         },
         methods: {
             changeCheckState(index){
@@ -85,35 +79,32 @@
             },
             saveLinks(){
                 this.$http.post('/web/setLinks', this.$data)
-                        .then((response)=> {
-                            let res = JSON.parse(response.body)
-                            let code = res.retcode
-                            let data = res.data
-                            switch (code){
-                                case 200:
-                                    this.pop({
-                                        pop: true,
-                                        content: '保存成功',
-                                        cb1: function () {
-                                            this.pop({})
-                                        }.bind(this)
-                                    })
-                                    break
-                                case 410:
-                                    alert('未登录')
-                                    break
-                            }
-                        }, (response)=> {
-                            console.log(response)
-                        })
+                .then((response)=> {
+                    let res = JSON.parse(response.body)
+                    let code = res.retcode
+                    let data = res.data
+                    switch (code){
+                        case 200:
+                            this.pop({
+                                pop: true,
+                                content: '保存成功',
+                                cb1: function () {
+                                    this.pop({})
+                                }.bind(this)
+                            })
+                            break
+                        case 410:
+                            alert('未登录')
+                            break
+                    }
+                }, (response)=> {
+                    console.log(response)
+                })
             },
         },
         vuex: {
-            getters: {
-                userName,
-            },
             actions: {
-                pop,
+                pop
             }
         }
     }

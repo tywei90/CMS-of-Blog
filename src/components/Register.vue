@@ -89,7 +89,7 @@
     </section>
 </template>
 <script>
-    import {toggle, setUser, bgToggle, pop}        from '../vuex/actions'
+    import {toggle, bgToggle, pop}        from '../vuex/actions'
     import {get, set}                         from '../js/cookieUtil'
     import {userRule, phoneRule, getPasswordLevel}      from '../js/validate'
     export default{
@@ -114,17 +114,13 @@
         created(){
             let userName = get('user')
             if (userName) {
-                this.setUser(userName)
-                this.$router.go('/console')
+                location.href='/' + userName + '#!/'
             }
         },
         ready(){
             this.bgToggle('NightSky')
         },
         methods: {
-            register(){
-                this.$router.go('/register');
-            },
             validatePassword2(){
                 if(this.password2.length < 4){
                     this.passwordTip2 = '密码太短'
@@ -184,9 +180,11 @@
                             case 200:
                                 this.hasSameUsername = false
                                 break
-                            case 400:
+                            case 401:
                                 this.hasSameUsername = true
                                 break
+                            default:
+                                
                         }
                     }, (response)=> {
                         console.log(response)
@@ -249,13 +247,12 @@
                         this.pop({
                             pop: true,
                             content: '<i class="icon iconfont icon-dui"></i>恭喜，注册成功！',
-                            btn1: '去首页',
+                            btn1: '去主页',
                             cb1: function () {
                                 this.pop({})
-                                this.$router.go('/')
+                                location.href='/' + this.userName + '#!/'
                             }.bind(this)
                         })
-                        this.setUser(res.data.userName)
                         let date = new Date(Date.now() + 60000 * 30)
                         let hostName = location.hostname
                         set('user', res.data.userName, date, '/', hostName)
@@ -275,7 +272,6 @@
         vuex: {
             actions: {
                 toggle,
-                setUser,
                 bgToggle,
                 pop
             }
@@ -283,6 +279,5 @@
     }
 </script>
 <style lang="sass">
-    @import "../style/common.scss";
     @import "../style/components/Register.scss";
 </style>

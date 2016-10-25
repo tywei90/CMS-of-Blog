@@ -32,6 +32,7 @@ router.map({
     '/article': {
         component: Article
     },
+    // 博客设置页面，需要拦截非博主登录
     '/console': {
         component: Console,
         subRoutes: {
