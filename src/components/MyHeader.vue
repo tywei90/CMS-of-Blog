@@ -15,7 +15,7 @@
         </ul>
         <div class="userGiude f-fl" v-if="!loginUserName">
             <span class="login-no">您还未登录</span>
-            <a href="/#!/login">登录</a>|
+            <a @click="popLogin">登录</a>|
             <a href="/#!/register">注册</a>
         </div>
         <div class="userGiude f-fl" v-else>
@@ -24,7 +24,10 @@
     </header>
 </template>
 <script>
-    import {get}    from '../js/cookieUtil'
+    import {get}        from '../js/cookieUtil'
+    import popLogin     from '../js/login'
+    import {pop}        from '../vuex/actions'
+
     export default{
         data(){
             return{
@@ -66,15 +69,22 @@
             })
         },
         methods:{
+            popLogin,
             goHome(){
                 if(this.loginUserName){
+                    // 登录的话直接去自己的主页
                     location.href = '/' + this.loginUserName + '#!/'
                 }else{
+                    // 否则还是在别人的主页
                     this.$router.go('/')
                 }
             }
+        },
+        vuex:{
+            actions:{
+                pop
+            }
         }
-
     }
 </script>
 <style lang="sass">

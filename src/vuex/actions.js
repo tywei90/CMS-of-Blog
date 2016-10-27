@@ -22,7 +22,6 @@ function pop({dispatch}, para) {
 	para.close = para.close === undefined? true: para.close
 	para.title = para.title === undefined? '温馨提示': para.title
 	// 没有传参数
-	console.log(para.btn1)
 	if(!para.btn1){
 		para.btn1 = '我知道了|normal'
 	}

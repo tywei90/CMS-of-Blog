@@ -11,14 +11,14 @@
             </div>
             <div class="naviHead f-fl" v-else>
                 <span class="login-yes">您好，{{userName}}</span>
-                <a :href="myHome">我的主页</a>
+                <a :href="myHome">主页</a>
                 <a :href="mySetting">设置</a>
             </div>
         </header>
         <section class="index">
             <div class="registedUsers">
                 <p>目前已注册的用户：</p>
-                <div v-if="!users.length">目前还没有注册的用户，赶紧抢沙发=&gt;<a href="/#!/register">去注册</a></div>
+                <div v-if="!users.length && ajaxReady">目前还没有注册的用户，赶紧抢沙发=&gt;<a href="/#!/register">去注册</a></div>
                 <ul class="f-cb" v-else>
                     <li class="f-fl" v-for="user in users"><a :href="user.href">{{user.name}}</a></li>
                 </ul>
@@ -38,7 +38,8 @@
         data(){
             return {
                 userName: '',
-                users: []
+                users: [],
+                ajaxReady: false
             }
         },
         computed:{
@@ -66,6 +67,7 @@
                 let data = res.data
                 switch (code){
                     case 200:
+                        this.ajaxReady = true
                         this.users = data.users || []
                         this.users.forEach(function(item){
                             item.href = '/' + item.name + '#!/'

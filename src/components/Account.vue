@@ -31,15 +31,18 @@
                        @keydown.enter="savePw"
                        v-model="rpw">
             </div>
-            <div class="panel">
+            <div class="panel panel1">
                 <button @click="savePw">保存</button>
+            </div>
+            <div class="panel panel2">
+                <button @click="preDeleteUser">注销</button>
             </div>
         </validator>
     </section>
 </template>
 <script>
     import {pop}            from '../vuex/actions'
-    import {unset}          from '../js/cookieUtil'
+    import {get, unset}          from '../js/cookieUtil'
     import popLogin         from '../js/login'
 
     export default{
@@ -104,6 +107,61 @@
                     }, (res)=> {
                         console.log(res)
                     })
+                })
+            },
+            preDeleteUser(){
+                var name = get('user')
+                if(!name){
+                    this.popLogin(this.deleteUser)
+                    return
+                }
+                this.pop({
+                    content: '您确定要注销' + name + '账户吗？',
+                    btn1: '确定|danger',
+                    cb1: ()=>{
+                        this.deleteUser()
+                    },
+                    btn2: '取消'
+                })
+            },
+            deleteUser(){
+                this.$http.post('/web/deleteUser')
+                .then((response)=> {
+                        let res = JSON.parse(response.body)
+                        let code = res.retcode
+                        let desc = res.retdesc
+                        let data = res.data
+                        switch (code){
+                            case 200:
+                                // 清除cookie
+                                unset('user', '/', location.hostname)
+                                this.pop({
+                                    close: false,
+                                    content: desc,
+                                    btn1: '再去首页看看',
+                                    cb1:function () {
+                                        location.href = '/#!/'
+                                    }
+                                })
+                                break
+                            case 410:
+                                this.popLogin(this.deleteUser)
+                                break
+                            case 430:
+                                this.pop({
+                                    close: false,
+                                    content: desc,
+                                    btn1: '确定',
+                                    cb1: ()=>{
+                                        location.href = data.name + '#!/console'
+                                    }
+                                })
+                                break
+                            default:
+                                this.pop(desc)
+                    }
+                }, (response)=> {
+                    console.log(response)
                 })
             }
         },

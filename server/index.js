@@ -287,7 +287,7 @@ router.post('/register', function(req, res, next) {
         } else {
             // '设置'的href跟用户名有关
             var links = init.links
-            links[0].href = '/' + name + links[0].href
+            links[1].href = '/' + name + links[1].href
             new db.User({
                 name: name,
                 password: password,
@@ -592,4 +592,42 @@ router.post('/deleteArticle', function(req, res, next) {
         }
     })
 })
+router.post('/deleteUser', function(req, res, next) {
+    var referer = req.headers.referer
+    var visitUsername = referer.slice(referer.lastIndexOf('/') + 1)
+    var name = req.cookies.user
+    var resBody = {
+        retcode: '',
+        retdesc: '',
+    }
+    if (!name) {
+        resBody = {
+            retcode: 410,
+            retdesc: '未登录',
+        }
+        res.send(resBody)
+        return
+    }
+    if (visitUsername !== name) {
+        resBody = {
+            retcode: 430,
+            retdesc: '非博主不能修改！',
+            data:{name}
+        }
+        res.send(resBody)
+        return
+    }
+    db.User.remove({ name: name }, function(err) {
+        if (err) {
+            return console.log(err)
+        } else {
+            resBody = {
+                retcode: 200,
+                retdesc: '注销成功！',
+            }
+            res.send(resBody)
+        }
+    })
+})
+
 module.exports = router;
