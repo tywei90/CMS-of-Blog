@@ -6,7 +6,7 @@
             </div>
             <div class="naviHead f-fl" v-if="!userName">
                 <span class="login-no">您还未登录</span>
-                <a @click="goLogin">登录</a>
+                <a @click="popLogin">登录</a>
                 <a href="/#!/register">注册</a>
             </div>
             <div class="naviHead f-fl" v-else>
@@ -28,16 +28,17 @@
     </div>
 </template>
 <script>
-    import myHeader     from './MyHeader.vue'
-    import myFooter     from './MyFooter.vue'
-    import {pop, bgToggle}   from '../vuex/actions'
-    import {get, set}    from '../js/cookieUtil'
+    import myHeader                     from './MyHeader.vue'
+    import myFooter                     from './MyFooter.vue'
+    import {pop, bgToggle, toggle}      from '../vuex/actions'
+    import {get, set}                   from '../js/cookieUtil'
+    import popLogin                     from '../js/login'
 
     export default{
         data(){
             return {
                 userName: '',
-                users: [],
+                users: []
             }
         },
         computed:{
@@ -61,6 +62,7 @@
             .then((response)=> {
                 let res = JSON.parse(response.body)
                 let code = res.retcode
+                let desc = res.retdesc
                 let data = res.data
                 switch (code){
                     case 200:
@@ -69,6 +71,8 @@
                             item.href = '/' + item.name + '#!/'
                         })
                         break
+                    default:
+                        this.pop(desc)
                 }
             }, (response)=> {
                 console.log(response)
@@ -78,16 +82,7 @@
             this.bgToggle('MyCanvas')
         },
         methods: {
-            goLogin(){
-                this.pop({
-                    pop: true,
-                    content: 'ssd',
-                    btn1: '登录',
-                    cb1: ()=>{
-                        this.pop({})
-                    }
-                })
-            }
+            popLogin
         },
         components: {
             myHeader,
@@ -96,7 +91,8 @@
         vuex:{
             actions:{
                 bgToggle,
-                pop
+                pop,
+                toggle
             }
         }
     }

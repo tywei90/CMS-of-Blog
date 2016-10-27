@@ -32,6 +32,8 @@
 </template>
 <script>
     import {pop}        from '../vuex/actions'
+    import popLogin     from '../js/login'
+
     export default{
         data(){
             return {
@@ -55,6 +57,7 @@
                 .then((response)=> {
                     let res = JSON.parse(response.body)
                     let code = res.retcode
+                    let desc = res.retdesc
                     let data = res.data
                     switch (code){
                         case 200:
@@ -63,41 +66,55 @@
                             })
                             break
                         case 410:
-                            alert('未登录')
+                            this.popLogin()
                             break
+                        default:
+                            this.pop(desc)
                     }
                 }, (response)=> {
                     console.log(response)
                 })
         },
         methods:{
+            popLogin,
             edit(id){
                 this.$router.go('/console/editor?id='+id)
             },
             deleteItem(id,index){
                 this.pop({
-                    pop:true,
-                    content:'确定要删除吗',
+                    content:'确定要删除吗？',
+                    btn1: '确定',
                     cb1:function () {
-                        this.$http.post('/web/delete',{id})
+                        this.$http.post('/web/deleteArticle',{id})
                             .then((response)=> {
                                 let res = JSON.parse(response.body)
                                 let code = res.retcode
+                                let desc = res.retdesc
                                 let data = res.data
                                 switch (code){
                                     case 200:
                                         this.pop({
-                                            pop:true,
-                                            content:'删除成功',
+                                            content:'删除成功!',
                                             cb1:function () {
-                                                this.pop({})
                                                 this.articles.splice(index,1)
                                             }.bind(this)
                                         })
                                         break
                                     case 410:
-                                        alert('未登录')
+                                        this.popLogin()
                                         break
+                                    case 430:
+                                        this.pop({
+                                            close: false,
+                                            content: desc,
+                                            btn1: '确定',
+                                            cb1: ()=>{
+                                                location.href = data.name + '#!/console'
+                                            }
+                                        })
+                                        break
+                                    default:
+                                        this.pop(desc)
                                 }
                             }, (response)=> {
                                 console.log(response)
@@ -105,7 +122,6 @@
                     }.bind(this),
                     btn2: '取消'
                 })
-
             },
             detail(id){
                 this.$router.go('/article?id='+id)
@@ -127,7 +143,7 @@
         },
         vuex: {
             actions:{
-                pop,
+                pop
             }
         }
     }

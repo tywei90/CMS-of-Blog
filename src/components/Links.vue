@@ -39,6 +39,8 @@
 
 <script>
     import {pop}        from '../vuex/actions'
+    import popLogin     from '../js/login'
+
     export default{
         data(){
             return {
@@ -50,20 +52,24 @@
             .then((response)=> {
                 let res = JSON.parse(response.body)
                 let code = res.retcode
+                let desc = res.retdesc
                 let data = res.data
                 switch (code){
                     case 200:
                         this.links = data.links
                         break
                     case 410:
-                        alert('未登录')
+                        this.popLogin()
                         break
+                    default:
+                        this.pop(desc)
                 }
             }, (response)=> {
                 console.log(response)
             })
         },
         methods: {
+            popLogin,
             changeCheckState(index){
                 this.links[index].newPage = !this.links[index].newPage
             },
@@ -82,20 +88,27 @@
                 .then((response)=> {
                     let res = JSON.parse(response.body)
                     let code = res.retcode
+                    let desc = res.retdesc
                     let data = res.data
                     switch (code){
                         case 200:
-                            this.pop({
-                                pop: true,
-                                content: '保存成功',
-                                cb1: function () {
-                                    this.pop({})
-                                }.bind(this)
-                            })
+                            this.pop('保存成功')
                             break
                         case 410:
-                            alert('未登录')
+                            this.popLogin(this.saveLinks)
                             break
+                        case 430:
+                            this.pop({
+                                close: false,
+                                content: desc,
+                                btn1: '确定',
+                                cb1: ()=>{
+                                    location.href = data.name + '#!/console'
+                                }
+                            })
+                            break
+                        default:
+                            this.pop(desc)
                     }
                 }, (response)=> {
                     console.log(response)

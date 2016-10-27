@@ -45,26 +45,9 @@
                 let hostName = location.hostname
                 set('user', loginUserName, date, '/', hostName)
             }
-            if (!loginUserName || loginUserName!==visitUserName) {
-                this.pop({
-                    pop: true,
-                    content: '非博主不能访问！',
-                    btn1: '博主登录',
-                    cb1: function () {
-                        this.pop({})
-                        unset('user', '/', location.hostname)
-                        location.href='/#!/login'+'?backUrl='+encodeURIComponent(document.URL)
-                    }.bind(this),
-                    btn2: '返回',
-                    cb2: function () {
-                        this.pop({})
-                        if(history.length > 1){
-                            history.back(-2)
-                        }else{
-                            location.href='/#!/'
-                        }
-                    }.bind(this)
-                })
+            if (loginUserName && loginUserName!==visitUserName) {
+                // 改成前端跳转地址，弹窗会有bug, 因为显示的是登录账号相关内容
+                location.href = '/' + loginUserName + '#!/console'
             }
         },
         components: {

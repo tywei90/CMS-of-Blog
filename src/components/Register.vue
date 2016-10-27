@@ -176,15 +176,16 @@
                     }).then((response)=> {
                         let res = JSON.parse(response.body)
                         let code = res.retcode
+                        let desc = res.retdesc
                         switch (code){
                             case 200:
                                 this.hasSameUsername = false
                                 break
-                            case 401:
+                            case 430:
                                 this.hasSameUsername = true
                                 break
                             default:
-                                
+                                this.hasSameUsername = false
                         }
                     }, (response)=> {
                         console.log(response)
@@ -193,38 +194,23 @@
             },
             registerRequest(){
                 if(!this.userName){
-                    this.pop({
-                        pop: true,
-                        content: '请输入用户名！'
-                    })
+                    this.pop('请输入用户名！')
                     return
                 }
                 if(!this.phoneNum){
-                    this.pop({
-                        pop: true,
-                        content: '请输入手机号！'
-                    })
+                    this.pop('请输入手机号！')
                     return
                 }
                 if(!this.password1){
-                    this.pop({
-                        pop: true,
-                        content: '请设置密码！'
-                    })
+                    this.pop('请设置密码！')
                     return
                 }
                 if(!this.password2){
-                    this.pop({
-                        pop: true,
-                        content: '请确认密码！'
-                    })
+                    this.pop('请确认密码！')
                     return
                 }
                 if(!this.$loginValidator.valid || this.hasSameUsername || !this.passwordState){
-                    this.pop({
-                        pop: true,
-                        content: '请确认信息！'
-                    })
+                    this.pop('请确认信息！')
                     return
                 }
                 this.userName = this.userName.trim()
@@ -242,30 +228,25 @@
             registerResponse(response, name = this.userName){
                 this.toggle()
                 let res = JSON.parse(response.body)
-                switch (res.retcode){
+                let code = res.retcode
+                let desc = res.retdesc
+                let data = res.data
+                switch (code){
                     case 200:
+                        let date = new Date(Date.now() + 60000 * 30)
+                        let hostName = location.hostname
+                        set('user', data.userName, date, '/', hostName)
                         this.pop({
-                            pop: true,
+                            css: 'regist-suc',
                             content: '<i class="icon iconfont icon-dui"></i>恭喜，注册成功！',
                             btn1: '去主页',
                             cb1: function () {
-                                this.pop({})
                                 location.href='/' + this.userName + '#!/'
                             }.bind(this)
                         })
-                        let date = new Date(Date.now() + 60000 * 30)
-                        let hostName = location.hostname
-                        set('user', res.data.userName, date, '/', hostName)
                         break
-                    case 400:
-                        this.pop({
-                            pop: true,
-                            content: res.retdesc,
-                            cb1: function () {
-                                this.pop({})
-                            }.bind(this)
-                        })
-                        break
+                    default: 
+                        this.pop(desc)
                 }
             },
         },

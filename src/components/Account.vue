@@ -38,8 +38,10 @@
     </section>
 </template>
 <script>
-    import {pop}        from '../vuex/actions'
-    import {unset}           from '../js/cookieUtil'
+    import {pop}            from '../vuex/actions'
+    import {unset}          from '../js/cookieUtil'
+    import popLogin         from '../js/login'
+
     export default{
         data(){
             return {
@@ -53,61 +55,55 @@
             }
         },
         methods: {
+            popLogin,
             savePw(){
                 this.$validate(true, ()=> {
-                    if (this.$loginValidator.valid) {
-                        if (this.pw === this.rpw) {
-                            this.$http.post('/web/savePw', {
-                                oldPassword: this.opw,
-                                newPassword: this.pw
-                            }).then((res)=> {
-                                let data = JSON.parse(res.body);
-                                switch (data.retcode){
-                                    case 200:
-                                        this.pop({
-                                            pop: true,
-                                            content: data.retdesc,
-                                            btn1: '重新登录',
-                                            cb1: function () {
-                                                this.pop({})
-                                                unset('user', '/', location.hostname)
-                                                location.href = "/#!/login"
-                                            }.bind(this),
-                                        })
-                                        break
-                                    case 410:
-                                        alert('未登录')
-                                        break
-                                    default:
-                                        this.pop({
-                                            pop: true,
-                                            content: data.retdesc,
-                                            cb1: function () {
-                                                this.pop({})
-                                            }.bind(this)
-                                        })
-                                }
-                            }, (res)=> {
-                                console.log(res)
-                            })
-                        }else {
-                            this.pop({
-                                pop: true,
-                                content: '两次输入不一致',
-                                cb1: function () {
-                                    this.pop({})
-                                }.bind(this)
-                            })
-                        }
-                    }else{
-                        this.pop({
-                            pop: true,
-                            content: '密码格式错误',
-                            cb1: function () {
-                                this.pop({})
-                            }.bind(this)
-                        })
+                    if (!this.$loginValidator.valid) {
+                        this.pop('密码格式错误')
+                        return
                     }
+                    if (this.pw !== this.rpw) {
+                        this.pop('两次输入不一致')
+                        return
+                    }
+                    this.$http.post('/web/savePw', {
+                        oldPassword: this.opw,
+                        newPassword: this.pw
+                    }).then((res)=> {
+                        let data = JSON.parse(res.body);
+                        switch (data.retcode){
+                            case 200:
+                                this.pop({
+                                    close: false,
+                                    content: data.retdesc,
+                                    btn1: '重新登录',
+                                    cb1: function () {
+                                        unset('user', '/', location.hostname)
+                                        location.href = "/#!/login"
+                                    },
+                                })
+                                break
+                            case 410:
+                                this.popLogin(this.savePw)
+                                break
+                            case 430:
+                                this.pop({
+                                    close: false,
+                                    content: desc,
+                                    btn1: '确定',
+                                    cb1: ()=>{
+                                        location.href = data.name + '#!/console'
+                                    }
+                                })
+                                break
+                            default:
+                                this.pop({
+                                    content: data.retdesc,
+                                })
+                        }
+                    }, (res)=> {
+                        console.log(res)
+                    })
                 })
             }
         },

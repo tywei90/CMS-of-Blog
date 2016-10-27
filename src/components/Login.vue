@@ -47,7 +47,7 @@
     </section>
 </template>
 <script>
-    import {toggle, bgToggle}    from '../vuex/actions'
+    import {toggle, bgToggle, pop}    from '../vuex/actions'
     import {get, set}           from '../js/cookieUtil'
     import {userRule}      from '../js/validate'
     export default{
@@ -113,15 +113,15 @@
                         }
                         break
                     default:
-                        alert(desc)
-                        break
+                        this.pop(desc)
                 }
-            },
+            }
         },
         vuex: {
             actions: {
                 toggle,
-                bgToggle
+                bgToggle,
+                pop
             }
         }
     }

@@ -3,6 +3,15 @@ var router = express.Router()
 var db = require('./db')
 var init = require('./init')
 
+// retcode说明:
+//     200: 请求成功
+//     400: 参数错误
+//     410: 未登录
+//     420: 用户不存在
+// resBody = {
+//     retcode: '',
+//     retdesc: '',
+// }
 
 router.get('/registedUsers', function(req, res, next) {
     var resBody = {
@@ -13,15 +22,16 @@ router.get('/registedUsers', function(req, res, next) {
     db.User.find(null, '-_id name', function(err, doc) {
         if (err) {
             return console.log(err)
-        }
-        resBody = {
-            retcode: 200,
-            retdesc: '请求成功',
-            data: {
-                users: doc
+        }else if(doc){
+            resBody = {
+                retcode: 200,
+                retdesc: '请求成功',
+                data: {
+                    users: doc
+                }
             }
+            res.send(resBody)
         }
-        res.send(resBody)
     })
 })
 
@@ -36,9 +46,9 @@ router.post('/validateUsername', function(req, res, next) {
         resBody = {
             retcode: 400,
             retdesc: '参数错误',
-            data: {}
         }
         res.send(resBody)
+        return
     }
     db.User.count({ name: userName }, function(err, num) {
         if (err) {
@@ -48,13 +58,11 @@ router.post('/validateUsername', function(req, res, next) {
                 resBody = {
                     retcode: 200,
                     retdesc: '没有同名账号，可以使用注册',
-                    data: {}
                 }
             } else {
                 resBody = {
-                    retcode: 401,
+                    retcode: 430,
                     retdesc: '已有同名账号',
-                    data: {}
                 }
             }
             res.send(resBody)
@@ -74,9 +82,9 @@ router.get('/console/article', function(req, res, next) {
         resBody = {
             retcode: 410,
             retdesc: '未登录',
-            data: {}
         }
-        res.send(doc)
+        res.send(resBody)
+        return
     }
     db.User.findOne({ name: name }, function(err, doc) {
         if (err) {
@@ -93,9 +101,8 @@ router.get('/console/article', function(req, res, next) {
                 }
             }else{
                 resBody = {
-                    retcode: 400,
-                    retdesc: '参数错误',
-                    data: {}
+                    retcode: 430,
+                    retdesc: 'id参数错误',
                 }
             }
             res.send(resBody)
@@ -115,9 +122,9 @@ router.post('/common/article', function(req, res, next) {
         resBody = {
             retcode: 400,
             retdesc: '参数错误',
-            data: {}
         }
         res.send(resBody)
+        return
     }
     db.User.findOne({ name: name }, function(err, doc) {
         if (err) {
@@ -134,10 +141,15 @@ router.post('/common/article', function(req, res, next) {
                 }
             }else{
                 resBody = {
-                    retcode: 401,
-                    retdesc: '参数错误',
-                    data: {}
+                    retcode: 430,
+                    retdesc: 'id参数错误',
                 }
+            }
+            res.send(resBody)
+        }else{
+            resBody = {
+                retcode: 420,
+                retdesc: '用户不存在',
             }
             res.send(resBody)
         }
@@ -153,11 +165,11 @@ router.post('/common/articleList', function(req, res, next) {
     }
     if (!name) {
         resBody = {
-            retcode: 401,
+            retcode: 400,
             retdesc: '参数错误',
-            data: {}
         }
         res.send(resBody)
+        return
     }
     db.User.findOne({ name: name }, function(err, doc) {
         if (err) {
@@ -169,6 +181,12 @@ router.post('/common/articleList', function(req, res, next) {
                 data: {
                     articles: doc.articles
                 }
+            }
+            res.send(resBody)
+        }else{
+            resBody = {
+                retcode: 420,
+                retdesc: '用户不存在',
             }
             res.send(resBody)
         }
@@ -186,9 +204,9 @@ router.get('/console/articleList', function(req, res, next) {
         resBody = {
             retcode: 410,
             retdesc: '未登录',
-            data: {}
         }
-        res.send(doc)
+        res.send(resBody)
+        return
     }
     db.User.findOne({ name: name }, function(err, doc) {
         if (err) {
@@ -219,23 +237,20 @@ router.post('/login', function(req, res, next) {
             return console.log(err)
         } else if (!doc) {
             resBody = {
-                retcode: 401,
+                retcode: 420,
                 retdesc: '账号不存在',
-                data: {}
             }
             res.send(resBody)
         } else if (doc.password === password) {
             resBody = {
                 retcode: 200,
                 retdesc: '登陆成功',
-                data: {}
             }
             res.send(resBody)
         } else {
             resBody = {
-                retcode: 402,
+                retcode: 430,
                 retdesc: '密码错误',
-                data: {}
             }
             res.send(resBody)
         }
@@ -254,11 +269,11 @@ router.post('/register', function(req, res, next) {
     // 校验用户名，作为注册以后的用户博客对应的网址路径
     if(!/^[a-z]{1}[a-z0-9_]{3,15}$/.test(name)){
         resBody = {
-            retcode: 401,
+            retcode: 430,
             retdesc: '用户名格式错误',
-            data: {}
         }
         res.send(resBody)
+        return
     }
     db.User.findOne({ name: name }, function(err, doc) {
         if (err) {
@@ -267,7 +282,6 @@ router.post('/register', function(req, res, next) {
             resBody = {
                 retcode: 400,
                 retdesc: '账号已存在',
-                data: {}
             }
             res.send(resBody)
         } else {
@@ -295,7 +309,10 @@ router.post('/register', function(req, res, next) {
     })
 })
 
-router.post('/save', function(req, res, next) {
+router.post('/saveArticle', function(req, res, next) {
+    // 获取当前页面地址的path, 防止不同账号登录导致Bug
+    var referer = req.headers.referer
+    var visitUsername = referer.slice(referer.lastIndexOf('/') + 1)
     var name = req.cookies.user
     var resBody = {
         retcode: '',
@@ -306,15 +323,23 @@ router.post('/save', function(req, res, next) {
         resBody = {
             retcode: 410,
             retdesc: '未登录',
-            data: {}
         }
-        res.send(doc)
+        res.send(resBody)
+        return
+    }
+    if (visitUsername !== name) {
+        resBody = {
+            retcode: 430,
+            retdesc: '非博主不能修改！',
+            data:{name}
+        }
+        res.send(resBody)
+        return
     }
     db.User.findOne({ name: name }, function(err, doc) {
         if (err) {
             return console.log(err)
         } else if (doc) {
-            console.log(req.body.content);
             if (req.body.id) {
                 var article = doc.articles.id(req.body.id)
                 article.title = req.body.title
@@ -333,10 +358,9 @@ router.post('/save', function(req, res, next) {
                 resBody = {
                     retcode: 200,
                     retdesc: '保存成功！',
-                    data: {}
                 }
                 res.send(resBody)
-            });
+            })
         }
     })
 })
@@ -350,11 +374,11 @@ router.post('/common/getLinks', function(req, res, next) {
     }
     if (!name) {
         resBody = {
-            retcode: 401,
+            retcode: 400,
             retdesc: '参数错误',
-            data: {}
         }
         res.send(resBody)
+        return
     }
     db.User.findOne({ name: name }, function(err, doc) {
         if (err) {
@@ -366,6 +390,12 @@ router.post('/common/getLinks', function(req, res, next) {
                 data: {
                     links: doc.links
                 }
+            }
+            res.send(resBody)
+        }else{
+            resBody = {
+                retcode: 420,
+                retdesc: '用户不存在',
             }
             res.send(resBody)
         }
@@ -383,9 +413,9 @@ router.get('/console/getLinks', function(req, res, next) {
         resBody = {
             retcode: 410,
             retdesc: '未登录',
-            data: {}
         }
-        res.send(doc)
+        res.send(resBody)
+        return
     }
     db.User.findOne({ name: name }, function(err, doc) {
         if (err) {
@@ -404,6 +434,8 @@ router.get('/console/getLinks', function(req, res, next) {
 })
 
 router.post('/setLinks', function(req, res, next) {
+    var referer = req.headers.referer
+    var visitUsername = referer.slice(referer.lastIndexOf('/') + 1)
     var name = req.cookies.user
     var resBody = {
         retcode: '',
@@ -414,9 +446,18 @@ router.post('/setLinks', function(req, res, next) {
         resBody = {
             retcode: 410,
             retdesc: '未登录',
-            data: {}
         }
-        res.send(doc)
+        res.send(resBody)
+        return
+    }
+    if (visitUsername !== name) {
+        resBody = {
+            retcode: 430,
+            retdesc: '非博主不能修改！',
+            data:{name}
+        }
+        res.send(resBody)
+        return
     }
     db.User.findOne({ name: name }, function(err, doc) {
         if (err) {
@@ -428,7 +469,6 @@ router.post('/setLinks', function(req, res, next) {
                 resBody = {
                     retcode: 200,
                     retdesc: '设置成功',
-                    data: {}
                 }
                 res.send(resBody)
             })
@@ -437,6 +477,8 @@ router.post('/setLinks', function(req, res, next) {
 })
 
 router.post('/savePw', function(req, res, next) {
+    var referer = req.headers.referer
+    var visitUsername = referer.slice(referer.lastIndexOf('/') + 1)
     var name = req.cookies.user,
         oldPassword = req.body.oldPassword,
         newPassword = req.body.newPassword,
@@ -449,33 +491,47 @@ router.post('/savePw', function(req, res, next) {
         resBody = {
             retcode: 400,
             retdesc: '参数错误',
-            data: {}
         }
         res.send(resBody)
+        return
     }
     if (!name) {
         resBody = {
             retcode: 410,
             retdesc: '未登录',
-            data: {}
         }
-        res.send(doc)
+        res.send(resBody)
+        return
+    }
+    if (visitUsername !== name) {
+        resBody = {
+            retcode: 430,
+            retdesc: '非博主不能修改！',
+            data:{name}
+        }
+        res.send(resBody)
+        return
     }
     db.User.findOne({ name: name }, 'password', function(err, doc) {
         if (err) {
             return console.log(err);
-        } else if (doc.password !== oldPassword) {
+        }
+        if (doc.password !== oldPassword) {
             resBody = {
-                retcode: 420,
+                retcode: 440,
                 retdesc: '原密码错误',
-                data: {}
             }
             res.send(resBody)
         } else if (newPassword.length < 4) {
             resBody = {
-                retcode: 430,
+                retcode: 450,
                 retdesc: '密码格式错误',
-                data: {}
+            }
+            res.send(resBody)
+        }else if(oldPassword === newPassword){
+            resBody = {
+                retcode: 460,
+                retdesc: '不能与原来密码一样',
             }
             res.send(resBody)
         } else {
@@ -486,7 +542,6 @@ router.post('/savePw', function(req, res, next) {
                     resBody = {
                         retcode: 200,
                         retdesc: '修改成功',
-                        data: {}
                     }
                     res.send(resBody)
                 }
@@ -495,20 +550,30 @@ router.post('/savePw', function(req, res, next) {
     })
 })
 
-router.post('/delete', function(req, res, next) {
+router.post('/deleteArticle', function(req, res, next) {
+    var referer = req.headers.referer
+    var visitUsername = referer.slice(referer.lastIndexOf('/') + 1)
     var name = req.cookies.user
     var resBody = {
         retcode: '',
         retdesc: '',
-        data: {}
     }
     if (!name) {
         resBody = {
             retcode: 410,
             retdesc: '未登录',
-            data: {}
         }
-        res.send(doc)
+        res.send(resBody)
+        return
+    }
+    if (visitUsername !== name) {
+        resBody = {
+            retcode: 430,
+            retdesc: '非博主不能修改！',
+            data:{name}
+        }
+        res.send(resBody)
+        return
     }
     db.User.findOne({ name: name }, function(err, doc) {
         if (err) {

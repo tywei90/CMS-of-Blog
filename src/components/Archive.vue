@@ -26,7 +26,7 @@
 <script>
     import myHeader     from './MyHeader.vue'
     import myFooter     from './MyFooter.vue'
-    import {bgToggle}   from '../vuex/actions'
+    import {bgToggle, pop}   from '../vuex/actions'
     import {set, get}    from '../js/cookieUtil'
     export default{
         data(){
@@ -56,10 +56,11 @@
             var indexEnd = href.lastIndexOf('#!')
             var indexStart = href.lastIndexOf('/', indexEnd) + 1
             let visitUserName = href.slice(indexStart, indexEnd)
-            this.$http.post('/web/common/articleList',{name: visitUserName})
+            this.$http.post('/web/common/articleList', {name: visitUserName})
                 .then((response)=> {
                     let res = JSON.parse(response.body)
                     let code = res.retcode
+                    let desc = res.retdesc
                     let data = res.data
                     switch (code){
                         case 200:
@@ -67,13 +68,20 @@
                                 return new Date(j.date) - new Date(i.date)
                             })
                             break
+                        case 420:
+                            this.pop({
+                                content: desc,
+                                btn1: '去首页',
+                                cb1: ()=>{
+                                     location.href="/#!/"
+                                }
+                            })
+                            break
                         default:
                             this.pop({
-                                pop: true,
                                 content: desc,
-                                btn1: '返回上一页',
+                                btn1: '返回',
                                 cb1: ()=>{
-                                    this.pop({})
                                     window.history.back(-1); 
                                 }
                             })
@@ -115,7 +123,8 @@
         },
         vuex:{
             actions:{
-                bgToggle
+                bgToggle,
+                pop
             }
         }
     }

@@ -29,9 +29,11 @@
     </section>
 </template>
 <script>
+    import popLogin     from '../js/login'
     import marked       from '../js/marked.min'
     import hljs         from '../js/highlight.min'
     import {pop}        from '../vuex/actions'
+
     export default{
         data(){
             return {
@@ -58,6 +60,7 @@
                     .then((response)=> {
                         let res = JSON.parse(response.body)
                         let code = res.retcode
+                        let desc = res.retdesc
                         let data = res.data
                         switch (code){
                             case 200:
@@ -67,18 +70,19 @@
                                 this.id = data.article._id
                                 break
                             case 410:
-                                alert('未登录')
+                                this.popLogin()
                                 break
-                            case 400:
+                            case 430:
                                 this.pop({
-                                    pop: true,
                                     content: desc,
-                                    btn1: '返回上一页',
+                                    btn1: '返回',
                                     cb1: ()=>{
-                                        window.history.back(-1); 
+                                        window.history.back(-1)
                                     }
                                 })
                                 break
+                            default:
+                                this.pop(desc)
                         }
                     })
             } else {
@@ -87,39 +91,50 @@
         },
 
         methods: {
+            popLogin,
             send(){
                 this.title = this.title.trim()
                 if (!this.title) {
-                    alert('请输入标题')
+                    this.pop('请输入标题')
                     return
                 }
                 if (!this.dateStr.trim()) {
                     this.date = new Date()
                 }
-
-                this.$http.post('/web/save', this.$data)
-                        .then((response)=> {
-                            let res = JSON.parse(response.body)
-                            let code = res.retcode
-                            let data = res.data
-                            switch (code){
-                                case 200:
-                                    this.pop({
-                                        pop: true,
-                                        content: '保存成功',
-                                        cb1: function () {
-                                            this.pop({})
-                                            this.$router.go('/console/articleList')
-                                        }.bind(this)
-                                    })
-                                    break
-                                case 410:
-                                    alert('未登录')
-                                    break
-                            }
-                        }, (response)=> {
-                            console.log(response)
-                        })
+                this.$http.post('/web/saveArticle', this.$data)
+                .then((response)=> {
+                    let res = JSON.parse(response.body)
+                    let code = res.retcode
+                    let desc = res.retdesc
+                    let data = res.data
+                    switch (code){
+                        case 200:
+                            this.pop({
+                                content: '保存成功!',
+                                cb1: ()=>{
+                                    this.$router.go('/console/articleList')
+                                }
+                            })
+                            break
+                        case 410:
+                            this.popLogin(this.send)
+                            break
+                        case 430:
+                            this.pop({
+                                close: false,
+                                content: desc,
+                                btn1: '确定',
+                                cb1: ()=>{
+                                    location.href = data.name + '#!/console'
+                                }
+                            })
+                            break
+                        default:
+                            this.pop(desc)
+                    }
+                }, (response)=> {
+                    console.log(response)
+                })
             },
             editToggle(){
                 this.view = this.view === 'edit' ? 'inspect' : 'edit'

@@ -65,16 +65,26 @@
                                 let d = new Date(data.article.date)
                                 this.date = d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日'
                                 break
-                            default:
+                            case 420:
                                 this.pop({
-                                    pop: true,
                                     content: desc,
-                                    btn1: '返回上一页',
+                                    btn1: '去首页',
                                     cb1: ()=>{
-                                        this.pop({})
-                                        window.history.back(-1); 
+                                         location.href="/#!/"
                                     }
                                 })
+                                break
+                            case 430:
+                                this.pop({
+                                    content: desc,
+                                    btn1: '返回',
+                                    cb1: ()=>{
+                                        window.history.back(-1)
+                                    }
+                                })
+                                break
+                            default:
+                                this.pop(desc)
                         }
                     }, (response)=> {
                         console.log(response)
