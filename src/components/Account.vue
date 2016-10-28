@@ -23,7 +23,7 @@
                 <br>
                 <i class="icon iconfont icon-mima"></i>
                 <input type="password"
-                       placeholder="重新输入"
+                       placeholder="确认新密码"
                        initial="off"
                        detect-change="off"
                        detect-blur="off"
@@ -61,6 +61,18 @@
             popLogin,
             savePw(){
                 this.$validate(true, ()=> {
+                    if(!this.opw){
+                        this.pop('原密码不能为空')
+                        return
+                    }
+                    if(!this.pw){
+                        this.pop('新密码不能为空')
+                        return
+                    }
+                    if(!this.rpw){
+                        this.pop('请确认新密码')
+                        return
+                    }
                     if (!this.$loginValidator.valid) {
                         this.pop('密码格式错误')
                         return
@@ -77,7 +89,7 @@
                         switch (data.retcode){
                             case 200:
                                 this.pop({
-                                    close: false,
+                                    showClose: false,
                                     content: data.retdesc,
                                     btn1: '重新登录',
                                     cb1: function () {
@@ -91,7 +103,7 @@
                                 break
                             case 430:
                                 this.pop({
-                                    close: false,
+                                    showClose: false,
                                     content: desc,
                                     btn1: '确定',
                                     cb1: ()=>{
@@ -136,7 +148,7 @@
                                 // 清除cookie
                                 unset('user', '/', location.hostname)
                                 this.pop({
-                                    close: false,
+                                    showClose: false,
                                     content: desc,
                                     btn1: '再去首页看看',
                                     cb1:function () {
@@ -149,7 +161,7 @@
                                 break
                             case 430:
                                 this.pop({
-                                    close: false,
+                                    showClose: false,
                                     content: desc,
                                     btn1: '确定',
                                     cb1: ()=>{

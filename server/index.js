@@ -238,7 +238,7 @@ router.post('/login', function(req, res, next) {
         } else if (!doc) {
             resBody = {
                 retcode: 420,
-                retdesc: '账号不存在',
+                retdesc: '账号或密码错误',
             }
             res.send(resBody)
         } else if (doc.password === password) {
@@ -249,8 +249,8 @@ router.post('/login', function(req, res, next) {
             res.send(resBody)
         } else {
             resBody = {
-                retcode: 430,
-                retdesc: '密码错误',
+                retcode: 420,
+                retdesc: '账号或密码错误',
             }
             res.send(resBody)
         }
@@ -285,8 +285,8 @@ router.post('/register', function(req, res, next) {
             }
             res.send(resBody)
         } else {
-            // '设置'的href跟用户名有关
-            var links = init.links
+            // '设置'的href跟用户名有关, 注意不能直接将init.links赋值给links！
+            var links = JSON.parse(JSON.stringify(init.links))
             links[1].href = '/' + name + links[1].href
             new db.User({
                 name: name,
@@ -366,6 +366,7 @@ router.post('/saveArticle', function(req, res, next) {
 })
 
 router.post('/common/getLinks', function(req, res, next) {
+    console.log(init.links)
     var name = req.body.name
     var resBody = {
         retcode: '',

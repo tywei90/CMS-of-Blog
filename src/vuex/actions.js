@@ -19,7 +19,7 @@ function pop({dispatch}, para) {
 	}
 	// 设置默认值
 	para.pop = !para.content? false: true
-	para.close = para.close === undefined? true: para.close
+	para.showClose = para.showClose === undefined? true: para.showClose
 	para.title = para.title === undefined? '温馨提示': para.title
 	// 没有传参数
 	if(!para.btn1){

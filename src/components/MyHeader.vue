@@ -5,10 +5,17 @@
         </div>
         <ul class="menu">
             <li v-for="link in links">
-                <a v-if="link.newPage" :href="link.href" target="_blank">
+                <!-- 已登录或者未登录但是访问链接不是博客设置页面 -->
+                <!-- 新开窗口 -->
+                <a v-if="(!!loginUserName || link.href.indexOf('/'+visitUserName+'#!/console')===-1) && link.newPage" :href="link.href" target="_blank">
                     {{link.name}}
                 </a>
-                <a v-else :href="link.href">
+                <!-- 非新开窗口 -->
+                <a v-if="(!!loginUserName || link.href.indexOf('/'+visitUserName+'#!/console')===-1) && !link.newPage" :href="link.href">
+                    {{link.name}}
+                </a>
+                <!-- 未登录并且访问链接是博客设置页面 -->
+                <a v-if="link.href.indexOf('/'+visitUserName+'#!/console')!==-1 && !loginUserName" @click="preIntercept(link.href, link.newPage)">
                     {{link.name}}
                 </a>
             </li>
@@ -78,6 +85,13 @@
                     // 否则还是在别人的主页
                     this.$router.go('/')
                 }
+            },
+            // 主要是想拦截非登录状态进入博客设置页面
+            preIntercept(linkUrl, newPage){
+                this.popLogin(function(){
+                    // 不能直接在登录成功之后新开窗口，这种没有用户操作的新开页面是不被允许的！
+                    location.href = linkUrl
+                })
             }
         },
         vuex:{

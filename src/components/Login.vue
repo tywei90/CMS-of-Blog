@@ -11,32 +11,14 @@
                            type="text"
                            name="userName"
                            placeholder="用户名"
-                           v-model="userName"
-                           initial="off"
-                           detect-change="off"
-                           detect-blur="off"
-                           v-validate:user-name="['userRule']">
-                    <label for="userName"
-                           v-if="$loginValidator.userName.userRule">
-                        <i class="icon iconfont icon-weixian"></i>
-                        <span>4~16个字符，支持小写英文数字和下划线，请以英文字母开头</span>
-                    </label>
+                           v-model="userName">
                 </p>
                 <p>
                     <i class="icon iconfont icon-mima"></i>
                     <input id="password"
                            type="password"
                            placeholder="密码"
-                           v-model="password"
-                           initial="off"
-                           detect-change="off"
-                           detect-blur="off"
-                           v-validate:password="passwordRule">
-                    <label for="password"
-                           v-if="$loginValidator.password.minlength">
-                        <i class="icon iconfont icon-cuowu"></i>
-                        <span>密码太短</span>
-                    </label>
+                           v-model="password">
                 </p>
                 <p>
                     <button @click="loginRequest">登陆</button>
@@ -49,21 +31,13 @@
 <script>
     import {toggle, bgToggle, pop}    from '../vuex/actions'
     import {get, set}           from '../js/cookieUtil'
-    import {userRule}      from '../js/validate'
+
     export default{
         data(){
             return {
                 userName: '',
                 password: '',
-                passwordRule: {
-                    minlength: 4,
-                    maxlength: 16,
-                }
-
             }
-        },
-        validators: {
-            userRule
         },
         created(){
             let userName = get('user')
@@ -77,18 +51,22 @@
         methods: {
             loginRequest(){
                 this.userName = this.userName.trim()
-                this.$validate(true, ()=> {
-                    if (this.$loginValidator.valid) {
-                        this.toggle()
-                        this.$http.post('/web/login', {
-                            userName: this.userName,
-                            password: this.password
-                        }).then((response)=> {
-                            this.loginResponse(response)
-                        }, (response)=> {
-                            console.log(response)
-                        })
-                    }
+                if(!this.userName){
+                    this.pop('账号不能为空')
+                    return
+                }
+                if(!this.password){
+                    this.pop('密码不能为空')
+                    return
+                }
+                this.toggle()
+                this.$http.post('/web/login', {
+                    userName: this.userName,
+                    password: this.password
+                }).then((response)=> {
+                    this.loginResponse(response)
+                }, (response)=> {
+                    console.log(response)
                 })
             },
 

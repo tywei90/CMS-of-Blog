@@ -99,7 +99,7 @@
                             break
                         case 430:
                             this.pop({
-                                close: false,
+                                showClose: false,
                                 content: desc,
                                 btn1: '确定',
                                 cb1: ()=>{

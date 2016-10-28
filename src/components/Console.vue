@@ -28,9 +28,10 @@
     <router-view></router-view>
 </template>
 <script>
-    import NaviHeader               from './NaviHeader.vue'
-    import {pop, bgToggle}   from '../vuex/actions'
+    import NaviHeader           from './NaviHeader.vue'
+    import {pop, bgToggle}      from '../vuex/actions'
     import {get, set, unset}    from '../js/cookieUtil'
+
     export default{
         created(){
             let loginUserName = get('user')
