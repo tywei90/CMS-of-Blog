@@ -3,7 +3,7 @@
   "description": "A Blog CMS Powered by Vue.js",
   "author": "ycwalker tianyao",
   "license": "MIT",
-  "version": "0.5.5",
+  "version": "0.5.6",
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --color --hot",
     "build": "cross-env NODE_ENV=production webpack --progress --hide-modules",
