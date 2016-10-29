@@ -1,6 +1,7 @@
 @import "../mixins";
 .icon-fire {
     font-size: 40px;
+    cursor: pointer;
 }
 .regist-suc{
     .icon-dui {
@@ -17,8 +18,13 @@ section.login {
     right: 0;
     min-height: 500px;
     .icon-weixian,
-    .icon-cuowu {
+    .icon-cuowu{
         font-size: 13px;
+    }
+    .icon-dui{
+        font-size: 15px;
+        color: #26d426;
+        margin-right: 3px;
     }
     .form {
         padding: 10px 30px;
@@ -101,6 +107,9 @@ section.login {
                 width: 270px;
                 .level-tip{
                     color: #fff;
+                }
+                .username-suc{
+                    color: #26d426;
                 }
             }
             &:first-child{

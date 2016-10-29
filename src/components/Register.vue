@@ -1,9 +1,14 @@
+<!-- vue的validate工具不适合用来处理复杂的验证逻辑，
+    因为他的验证时机会受到所处验证区域其他vue参数更新的影响；
+    对于复杂的验证还是采用原始方法，根据不同case设置tip
+ -->
+
 <template>
     <section class="login">
         <validator name="loginValidator">
             <div class="form" @keyup.enter="registerRequest">
                 <div class="part">
-                    <i class="icon iconfont icon-fire"></i>
+                    <i v-link="{path: '/'}" class="icon iconfont icon-fire"></i>
                 </div>
                 <div class="part f-cb">
                     <div class="f-fr">
@@ -15,15 +20,19 @@
                             initial="off"
                             detect-change="off"
                             detect-blur="on"
+                            @blur="userBlur=true"
+                            @focus="userBlur=false"
                             @valid="onUsernameValid"
                             v-validate:user-name="['userRule']">
-                        <label for="userName" v-if="$loginValidator.userName.userRule">
+                        <label for="userName" v-if="userBlur && $loginValidator.userName.userRule">
                             <i class="icon iconfont icon-cuowu"></i>
                             <span>4~16个字符，支持小写英文数字和下划线，请以英文字母开头</span>
                         </label>
-                        <label for="userName" v-if="hasSameUsername">
-                            <i class="icon iconfont icon-weixian"></i>
-                            <span>已存在同名账号，请更换其他账号</span>
+                        <label for="userName" v-if="userBlur && !$loginValidator.userName.userRule">
+                            <i v-if="hasSameUsername" class="icon iconfont icon-weixian"></i>
+                            <i v-else class="icon iconfont icon-dui"></i>
+                            <span v-if="hasSameUsername">已存在同名账号，请更换其他账号</span>
+                            <span class="username-suc" v-else>恭喜，该账号可以注册！</span>
                         </label>
                     </div>
                     <span class="f-fr">用户名：</span>
@@ -35,11 +44,13 @@
                             name="phoneNum"
                             placeholder="请输入您的手机号码"
                             v-model="phoneNum"
+                            @blur="phoneBlur=true"
+                            @focus="phoneBlur=false"
                             initial="off"
                             detect-change="off"
                             detect-blur="on"
                             v-validate:phone-num="['phoneRule']">
-                        <label for="phoneNum" v-if="$loginValidator.phoneNum.phoneRule">
+                        <label for="phoneNum" v-if="phoneBlur && $loginValidator.phoneNum.phoneRule">
                             <i class="icon iconfont icon-cuowu"></i>
                             <span>手机号码格式不正确</span>
                         </label>
@@ -96,7 +107,9 @@
         data(){
             return {
                 userName: '',
+                userBlur: false,
                 phoneNum: '',
+                phoneBlur: false,
                 password1: '',
                 passwordTip1: '',
                 passwordLevel1: '',

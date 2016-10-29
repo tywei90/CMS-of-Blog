@@ -3,7 +3,7 @@
         <validator name="loginValidator">
             <div class="form" @keyup.enter="loginRequest">
                 <p>
-                    <i class="icon iconfont icon-fire"></i>
+                    <i v-link="{path: '/'}" class="icon iconfont icon-fire"></i>
                 </p>
                 <p>
                     <i class="icon iconfont icon-zhanghu"></i>
