@@ -9,9 +9,12 @@
 ## Features
 
 * 支持MarkDown语法编辑
+* 编辑博客支持实时预览
 * 博客页面对移动端优化
 * 支持代码高亮
 * 就是要酷炫~~
+* 支持注册，用户可以拥有自己的博客
+* 有博客首页，还可以查看别人的博客
 
 ###### 前端：Vue全家桶
 * Vue.js
@@ -45,7 +48,7 @@
 
 克隆远程库
 ```
-git clone https://github.com/ycwalker/CMS-of-Blog.git
+git clone https://github.com/tywei90/CMS-of-Blog.git
 ```
 进入项目目录
 ```
@@ -55,15 +58,19 @@ cd CMS-of-Blog
 ```
 npm install
 ```
-进入服务器所在文件夹并运行服务器
+运行以下命令
 ```
-cd server
-node www
+npm run server //启动服务器，实时监测后台代码并更新(需要手动刷新页面)
+npm run dev //动态监测.vue和.scss文件, 并更新内存里(8080端口)的打包文件，自动刷新页面
+//根据需要运行
+npm run build //编译文件，打包到磁盘里，对应3000端口
 ```
 打开浏览器输入http://localhost:3000/
-如果一切OK，则进入博客的归档页面，登陆按钮在最下方。
+如果一切OK，则进入博客首页，可以看到已注册的用户，查看他们博客，也可以登录注册
+
 ###### 注意
-* **第一次从node启动时，数据库会初始化，自动插入两个用户，分别是和'admin'，'游客'，前者有管理员权限，默认密码是111.**
+* 注册后会初始化两个文章和三个链接
 * 如果需要改动，则在第一次启动前打开server目录下的init.js，初始化数据放在该文件中。
-* 推荐[MongoChef](http://3t.io/mongochef/)作为mongoDB可视化管理工具
+* 推荐[RoboMongo](https://robomongo.org)作为mongoDB可视化管理工具
 * 如果有疑问，欢迎交流~
+* 邮箱：tywei90@163.com
