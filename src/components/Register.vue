@@ -39,6 +39,40 @@
                 </div>
                 <div class="part f-cb">
                     <div class="f-fr">
+                        <input id="email"
+                            type="email"
+                            name="email"
+                            placeholder="请输入您的邮箱"
+                            v-model="email"
+                            @blur="emailBlur=true"
+                            @focus="emailBlur=false"
+                            initial="off"
+                            detect-change="off"
+                            detect-blur="on"
+                            v-validate:email="['mailRule']">
+                        <label for="email" v-if="emailBlur && $loginValidator.email.mailRule">
+                            <i class="icon iconfont icon-cuowu"></i>
+                            <span>邮箱格式错误</span>
+                        </label>
+                    </div>
+                    <span class="f-fr">邮箱：</span>
+                </div>
+                <div class="part f-cb send-email">
+                    <span class="f-fl">验证码：</span>
+                    <div class="f-fl">
+                        <input id="emailCode"
+                            type="text"
+                            name="emailCode"
+                            placeholder="请输入您邮箱收到的验证码"
+                            v-model="emailCode" >
+                    </div>
+                    <div @click="handleSendEmail" class="f-fl sendEmailBtn" :class="[!canSendEmail? 'disabled': '']">
+                        <span v-if="canSendEmail">发送验证码</span>
+                        <span v-if="!canSendEmail">{{countDown}}s后可再次发送</span>
+                    </div>
+                </div>
+                <!-- <div class="part f-cb">
+                    <div class="f-fr">
                         <input id="phoneNum"
                             type="text"
                             name="phoneNum"
@@ -56,7 +90,7 @@
                         </label>
                     </div>
                     <span class="f-fr">手机号：</span>
-                </div>
+                </div> -->
                 <div class="part f-cb">
                     <div class="password-level f-cb" :class="levelPointer1" v-if="passwordLevel1 > 0">
                         <span class="f-fl"></span>
@@ -102,14 +136,20 @@
 <script>
     import {toggle, bgToggle, pop}        from '../vuex/actions'
     import {get, set}                         from '../js/cookieUtil'
-    import {userRule, phoneRule, getPasswordLevel}      from '../js/validate'
+    import {userRule, phoneRule, getPasswordLevel, mailRule}      from '../js/validate'
     export default{
         data(){
             return {
                 userName: '',
                 userBlur: false,
-                phoneNum: '',
-                phoneBlur: false,
+                email: '',
+                emailBlur: false,
+                emailCode: '',
+                emailCodeBlur: false,
+                canSendEmail: true,
+                countDown: 60,
+                // phoneNum: '',
+                // phoneBlur: false,
                 password1: '',
                 passwordTip1: '',
                 passwordLevel1: '',
@@ -118,11 +158,13 @@
                 passwordTip2: '',
                 passwordState: false,
                 hasSameUsername: false,
+                emailCodeValid: false
             }
         },
         validators: {
             userRule,
-            phoneRule
+            phoneRule,
+            mailRule
         },
         created(){
             let userName = get('user')
@@ -134,6 +176,44 @@
             this.bgToggle('NightSky')
         },
         methods: {
+            handleSendEmail(){
+                if(!this.canSendEmail){
+                    return
+                }
+                if(!this.email){
+                    this.pop('请先输入邮箱！')
+                    return
+                }
+                if(this.$loginValidator.email.mailRule){
+                    this.pop('邮箱格式错误！')
+                    return
+                }
+                this.$http.post('/web/genEmailCode', {
+                    email: this.email
+                }).then((response)=> {
+                    let res = JSON.parse(response.body)
+                    let code = res.retcode
+                    let desc = res.retdesc
+                    switch (code){
+                        case 200:
+                            this.canSendEmail = false;
+                            var timer = setInterval(()=>{
+                                if(this.countDown <= 0){
+                                    this.canSendEmail = true
+                                    this.countDown = 60
+                                    window.clearInterval(timer)
+                                    return
+                                }
+                                this.countDown = this.countDown - 1
+                            }, 1000)
+                            break
+                        default:
+                            this.pop(desc)
+                    }
+                }, (response)=> {
+                    console.log(response)
+                })
+            },
             validatePassword2(){
                 if(this.password2.length < 4){
                     this.passwordTip2 = '密码太短'
@@ -210,8 +290,12 @@
                     this.pop('请输入用户名！')
                     return
                 }
-                if(!this.phoneNum){
-                    this.pop('请输入手机号！')
+                if(!this.email){
+                    this.pop('请输入邮箱！')
+                    return
+                }
+                if(!this.emailCode){
+                    this.pop('请输入验证码！')
                     return
                 }
                 if(!this.password1){
@@ -231,7 +315,8 @@
                 this.$http.post('/web/register', {
                     userName: this.userName,
                     password: this.password2,
-                    tel: this.phoneNum
+                    email: this.email,
+                    emailCode: this.emailCode
                 }).then((response)=> {
                     this.registerResponse(response)
                 }, (response)=> {

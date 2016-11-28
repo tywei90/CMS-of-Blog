@@ -2,7 +2,10 @@ var express = require('express')
 var router = express.Router()
 var db = require('./db')
 var init = require('./init')
-
+// 发送邮件的node插件
+var nodemailer = require('nodemailer')
+// create reusable transporter object using the default SMTP transport
+var transporter = nodemailer.createTransport('smtps://tywei90%40163.com:tywei90@smtp.163.com')
 // retcode说明:
 //     200: 请求成功
 //     400: 参数错误
@@ -13,13 +16,156 @@ var init = require('./init')
 //     retdesc: '',
 // }
 
+router.post('/genEmailCode', function(req, res, next) {
+    var email = req.body.email,
+    resBody = {
+        retcode: '',
+        retdesc: '',
+        data: {}
+    }
+    if(!email){
+        resBody = {
+            retcode: 400,
+            retdesc: '参数错误',
+        }
+        res.send(resBody)
+        return
+    }
+    function genRandomCode(){
+        var arrNum = [];
+        for(var i=0; i<6; i++){
+            var tmpCode = Math.floor(Math.random() * 9);
+            arrNum.push(tmpCode);
+        }
+        return arrNum.join('')
+    }
+    db.User.findOne({ email: email }, function(err, doc) {
+        if (err) {
+            return console.log(err)
+        } else if (doc && doc.name !== 'tmp') {
+            resBody = {
+                retcode: 400,
+                retdesc: '该邮箱已注册',
+            }
+            res.send(resBody)
+        } else if(!doc){  // 第一次点击获取验证码
+            var emailCode = genRandomCode();
+            var createdTime = Date.now();
+            // setup e-mail data with unicode symbols
+            var mailOptions = {
+                from: '"CMS-of-Blog 👥" <tywei90@163.com>', // sender address
+                to: email, // list of receivers
+                subject: '亲爱的用户' + email, // Subject line
+                text: 'Hello world 🐴', // plaintext body
+                html: [
+                    '<p>您好！恭喜您注册成为CMS-of-Blog博客用户。</p><br/>',
+                    '<p>这是一封发送验证码的注册认证邮件，请复制一下验证码填写到注册页面以完成注册。</p>',
+                    '<p>本次验证码为：' + emailCode + '</p>',
+                    '<p>上述验证码30分钟内有效。如果验证码失效，请您登录网站<a href="http://localhost:3000/#!/register">CMS-of-Blog博客注册</a>重新申请认证。</p>',
+                    '<p>感谢您注册成为CMS-of-Blog博客用户！</p><br/>',
+                    '<p>CMS-of-Blog开发团队</p>',
+                    '<p>'+ (new Date()).toLocaleString() + '</p>'
+                ].join('') // html body
+            };
+            // send mail with defined transport object
+            transporter.sendMail(mailOptions, function(error, info){
+                if(error){
+                    return console.log(error);
+                }
+                // console.log('Message sent: ' + info.response);
+                new db.User({
+                    name: 'tmp',
+                    password: '0000',
+                    email: email,
+                    emailCode: emailCode,
+                    createdTime: createdTime,
+                    articles: init.articles,
+                    links: []
+                }).save(function(err) {
+                    if (err) return console.log(err)
+                    // 半小时内如果不注册成功，则在数据库中删除这条数据，也就是说验证码会失效
+                    setTimeout(function(){
+                        db.User.findOne({ email: email }, function(err, doc) {
+                            if (err) {
+                                return console.log(err)
+                            } else if (doc && doc.createdTime === createdTime) {
+                                db.User.remove({ email: email }, function(err) {
+                                    if (err) {
+                                        return console.log(err)
+                                    }
+                                })
+                            }
+                        })
+                    }, 30*60*1000);
+                    resBody = {
+                        retcode: 200,
+                        retdesc: ''
+                    }
+                    res.send(resBody)
+                })
+            });
+        }else if(doc && doc.name === 'tmp'){ // 在邮箱验证码有效的时间内，再次点击获取验证码
+            var emailCode = genRandomCode();
+            var createdTime = Date.now();
+            // setup e-mail data with unicode symbols
+            var mailOptions = {
+                from: '"CMS-of-Blog 👥" <tywei90@163.com>', // sender address
+                to: email, // list of receivers
+                subject: '亲爱的用户' + email, // Subject line
+                text: 'Hello world 🐴', // plaintext body
+                html: [
+                    '<p>您好！恭喜您注册成为CMS-of-Blog博客用户。</p><br/>',
+                    '<p>这是一封发送验证码的注册认证邮件，请复制一下验证码填写到注册页面以完成注册。</p>',
+                    '<p>本次验证码为：' + emailCode + '</p>',
+                    '<p>上述验证码30分钟内有效。如果验证码失效，请您登录网站<a href="http://localhost:3000/#!/register">CMS-of-Blog博客注册</a>重新申请认证。</p>',
+                    '<p>感谢您注册成为CMS-of-Blog博客用户！</p><br/>',
+                    '<p>CMS-of-Blog开发团队</p>',
+                    '<p>'+ (new Date()).toLocaleString() + '</p>'
+                ].join('') // html body
+            };
+            // send mail with defined transport object
+            transporter.sendMail(mailOptions, function(error, info){
+                if(error){
+                    return console.log(error);
+                }
+                db.User.update({ email: email }, { emailCode: emailCode, createdTime: Date.now()}, function(err) {
+                    if (err) {
+                        return console.log(err)
+                    } else {
+                        // 半小时内如果不注册成功，则在数据库中删除这条数据，也就是说验证码会失效
+                        setTimeout(function(){
+                            db.User.findOne({ email: email }, function(err, doc) {
+                                if (err) {
+                                    return console.log(err)
+                                } else if (doc && doc.createdTime === createdTime) {
+                                    db.User.remove({ email: email }, function(err) {
+                                        if (err) {
+                                            return console.log(err)
+                                        }
+                                    })
+                                }
+                            })
+                        }, 30*60*1000);
+                        resBody = {
+                            retcode: 200,
+                            retdesc: '',
+                        }
+                        res.send(resBody)
+                    }
+                })
+            });
+        }
+    })
+})
+
 router.get('/registedUsers', function(req, res, next) {
     var resBody = {
         retcode: '',
         retdesc: '',
         data: {}
     }
-    db.User.find(null, '-_id name', function(err, doc) {
+    // 过滤掉像tmp这样的临时用户
+    db.User.find({name: /^[a-z]{1}[a-z0-9_]{3,15}$/}, '-_id name', function(err, doc) {
         if (err) {
             return console.log(err)
         }else if(doc){
@@ -260,7 +406,8 @@ router.post('/login', function(req, res, next) {
 router.post('/register', function(req, res, next) {
     var name = req.body.userName,
         password = req.body.password,
-        tel = req.body.tel,
+        email = req.body.email,
+        emailCode = req.body.emailCode,
         resBody = {
             retcode: '',
             retdesc: '',
@@ -269,8 +416,8 @@ router.post('/register', function(req, res, next) {
     // 校验用户名，作为注册以后的用户博客对应的网址路径
     if(!/^[a-z]{1}[a-z0-9_]{3,15}$/.test(name)){
         resBody = {
-            retcode: 430,
-            retdesc: '用户名格式错误',
+            retcode: 420,
+            retdesc: '用户名格式错误'
         }
         res.send(resBody)
         return
@@ -280,30 +427,50 @@ router.post('/register', function(req, res, next) {
             return console.log(err)
         } else if (doc) {
             resBody = {
-                retcode: 400,
-                retdesc: '账号已存在',
+                retcode: 430,
+                retdesc: '账号已存在'
             }
             res.send(resBody)
         } else {
-            // '设置'的href跟用户名有关, 注意不能直接将init.links赋值给links！
-            var links = JSON.parse(JSON.stringify(init.links))
-            links[1].href = '/' + name + links[1].href
-            new db.User({
-                name: name,
-                password: password,
-                tel: tel,
-                articles: init.articles,
-                links: links
-            }).save(function(err) {
-                if (err) return console.log(err)
-                resBody = {
-                    retcode: 200,
-                    retdesc: '注册成功',
-                    data: {
-                        userName: name
+            db.User.findOne({ email: email }, function(err, doc) {
+                if (err) {
+                    return console.log(err)
+                } else if (doc && doc.name !== 'tmp') {
+                    resBody = {
+                        retcode: 440,
+                        retdesc: '该邮箱已注册'
                     }
+                    res.send(resBody)
+                } else if(doc && doc.name === 'tmp' && doc.emailCode === emailCode){
+                    // '设置'的href跟用户名有关, 注意不能直接将init.links赋值给links！
+                    var links = JSON.parse(JSON.stringify(init.links))
+                    links[1].href = '/' + name + links[1].href
+                    db.User.update({ email: email }, { 
+                        name: name,
+                        password: password,
+                        createdTime: Date.now(),
+                        links: links
+                    }, function(err) {
+                        if (err) {
+                            return console.log(err)
+                        } else {
+                            resBody = {
+                                retcode: 200,
+                                retdesc: '注册成功',
+                                data: {
+                                    userName: name
+                                }
+                            }
+                            res.send(resBody)
+                        }
+                    })
+                }else{
+                    resBody = {
+                        retcode: 450,
+                        retdesc: '验证码错误'
+                    }
+                    res.send(resBody)
                 }
-                res.send(resBody)
             })
         }
     })

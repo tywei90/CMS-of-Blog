@@ -30,7 +30,9 @@ var mongoose =  require('mongoose'),
     userSchema = new Schema({
         name: String,
         password: String,
-        tel: String,
+        email: String,
+        emailCode: String,
+        createdTime: Number,
         articles: [articleSchema],
         links: [linkSchema]
     }),
