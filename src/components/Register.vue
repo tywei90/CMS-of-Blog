@@ -4,7 +4,7 @@
  -->
 
 <template>
-    <section class="login">
+    <section class="register">
         <validator name="loginValidator">
             <div class="form" @keyup.enter="registerRequest">
                 <div class="part">
@@ -24,11 +24,11 @@
                             @focus="userBlur=false"
                             @valid="onUsernameValid"
                             v-validate:user-name="['userRule']">
-                        <label for="userName" v-if="userBlur && $loginValidator.userName.userRule">
+                        <label for="userName" v-if="userBlur && $loginValidator.userName.userRule && userName">
                             <i class="icon iconfont icon-cuowu"></i>
                             <span>4~16个字符，支持小写英文数字和下划线，请以英文字母开头</span>
                         </label>
-                        <label for="userName" v-if="userBlur && !$loginValidator.userName.userRule">
+                        <label for="userName" v-if="userBlur && !$loginValidator.userName.userRule  && userName">
                             <i v-if="hasSameUsername" class="icon iconfont icon-weixian"></i>
                             <i v-else class="icon iconfont icon-dui"></i>
                             <span v-if="hasSameUsername">已存在同名账号，请更换其他账号</span>
@@ -50,7 +50,7 @@
                             detect-change="off"
                             detect-blur="on"
                             v-validate:email="['mailRule']">
-                        <label for="email" v-if="emailBlur && $loginValidator.email.mailRule">
+                        <label for="email" v-if="emailBlur && $loginValidator.email.mailRule && email">
                             <i class="icon iconfont icon-cuowu"></i>
                             <span>邮箱格式错误</span>
                         </label>

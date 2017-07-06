@@ -3,11 +3,12 @@ section.account {
     @include rightSide();
     .title {
         @include title();
+        font-size: 24px;
         padding-right: 140px;
     }
     .password {
         width: 260px;
-        margin: 120px auto 40px auto;
+        margin: 60px auto 40px auto;
         padding-right: 100px;
         input {
             margin: 30px auto;
@@ -20,10 +21,15 @@ section.account {
     }
     .panel1{
         text-align: center;
-        margin-bottom: 200px;
         button{
             width: 220px;
             height: 40px;
         }
+    }
+    .panel2{
+        position: absolute;
+        bottom: 20px;
+        right: 0;
+        padding-right: 50px;
     }
 }
