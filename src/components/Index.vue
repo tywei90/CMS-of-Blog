@@ -20,7 +20,12 @@
                 <p>目前已注册的用户：</p>
                 <div v-if="!users.length && ajaxReady">目前还没有注册的用户，赶紧抢沙发=&gt;<a href="/#!/register">去注册</a></div>
                 <ul class="f-cb" v-else>
-                    <li class="f-fl" v-for="user in users"><a :href="user.href">{{user.name}}</a></li>
+                    <li 
+                        :style="{'background': 'rgba(' + Math.floor(Math.random()*256) + ',' + Math.floor(Math.random()*256) + ',' + Math.floor(Math.random()*256) + ',' + 0.6 + ')'}" 
+                        class="f-fl" 
+                        v-for="user in users">
+                        <a :href="user.href">{{user.name}}</a>
+                    </li>
                 </ul>
             </div>
         </section>
@@ -39,7 +44,7 @@
             return {
                 userName: '',
                 users: [],
-                ajaxReady: false
+                ajaxReady: false,
             }
         },
         computed:{
